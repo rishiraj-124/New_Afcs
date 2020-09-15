@@ -20,7 +20,7 @@ public class PassMasterEntity implements Serializable {
 	private static final long serialVersionUID = 8836208152345737040L;
 
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Basic(optional = false)
     @Column(name = "id")
 	private Long id;
@@ -28,20 +28,37 @@ public class PassMasterEntity implements Serializable {
 	@Column(name ="passId")
 	private Integer passId;
 	
-	@Column(name ="passPeriod")
-	private String passPeriod;
-	
 	@Column(name ="passName")
 	private String passName;
 	
+	@Column(name ="passType")
+	private String passType;
+	
+	@Column(name ="passDescription")
+	private String passDesc;
+	
+	
+	@Column(name ="passPeriod")
+	private String passPeriod;
+	
+	
 	@Column(name = "tripAllowed")
 	private String tripAllowed;
+	
+	@Column(name = "linesValidOn")
+	private String linesValidOn;
 	
 	@Column(name ="passAmt")
 	private Integer passAmt;
 	
 	@Column(name ="validity")
 	private String validity;
+	
+	@Column(name ="validFrom")
+	private String validFrom;
+	
+	@Column(name ="validTo")
+	private String validTo;
 	
 	@Column(name ="paxType")
 	private String paxType;
@@ -68,14 +85,6 @@ public class PassMasterEntity implements Serializable {
 		this.passId = passId;
 	}
 
-	public String getPassPeriod() {
-		return passPeriod;
-	}
-
-	public void setPassPeriod(String passPeriod) {
-		this.passPeriod = passPeriod;
-	}
-
 	public String getPassName() {
 		return passName;
 	}
@@ -84,12 +93,44 @@ public class PassMasterEntity implements Serializable {
 		this.passName = passName;
 	}
 
+	public String getPassType() {
+		return passType;
+	}
+
+	public void setPassType(String passType) {
+		this.passType = passType;
+	}
+
+	public String getPassDesc() {
+		return passDesc;
+	}
+
+	public void setPassDesc(String passDesc) {
+		this.passDesc = passDesc;
+	}
+
+	public String getPassPeriod() {
+		return passPeriod;
+	}
+
+	public void setPassPeriod(String passPeriod) {
+		this.passPeriod = passPeriod;
+	}
+
 	public String getTripAllowed() {
 		return tripAllowed;
 	}
 
 	public void setTripAllowed(String tripAllowed) {
 		this.tripAllowed = tripAllowed;
+	}
+
+	public String getLinesValidOn() {
+		return linesValidOn;
+	}
+
+	public void setLinesValidOn(String linesValidOn) {
+		this.linesValidOn = linesValidOn;
 	}
 
 	public Integer getPassAmt() {
@@ -106,6 +147,22 @@ public class PassMasterEntity implements Serializable {
 
 	public void setValidity(String validity) {
 		this.validity = validity;
+	}
+
+	public String getValidFrom() {
+		return validFrom;
+	}
+
+	public void setValidFrom(String validFrom) {
+		this.validFrom = validFrom;
+	}
+
+	public String getValidTo() {
+		return validTo;
+	}
+
+	public void setValidTo(String validTo) {
+		this.validTo = validTo;
 	}
 
 	public String getPaxType() {
@@ -131,4 +188,6 @@ public class PassMasterEntity implements Serializable {
 	public void setDoc_Reqd(String doc_Reqd) {
 		this.doc_Reqd = doc_Reqd;
 	}
+
+	
 }

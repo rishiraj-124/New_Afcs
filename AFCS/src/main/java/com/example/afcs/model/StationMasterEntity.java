@@ -1,13 +1,18 @@
 package com.example.afcs.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -31,12 +36,86 @@ public class StationMasterEntity implements Serializable{
 	@Column(name ="stnName")
 	private String stnName;
 	
-	@Column(name ="isInterChange")
-	private Boolean isInterChange;
+	@Column(name ="stnAddress")
+	private String stnAddress;
 	
+	@Column(name ="landMark")
+	private String landMark;
+	
+	@Column(name ="gpsLocation")
+	private Long gpsLocation;;
+	
+	@Column(name ="stnBrandName")
+	private String stnBrandName;
+	
+ 	@OneToMany(targetEntity=PassengerEntity.class,cascade = CascadeType.ALL, 
+    fetch = FetchType.LAZY, orphanRemoval = true)
+ 	@JoinColumn(name = "SMID", referencedColumnName = "id")
+	private List<EmergencyContact> emergencyContactList;
+   	
+   	@OneToMany(targetEntity=PassengerEntity.class,cascade = CascadeType.ALL, 
+    fetch = FetchType.LAZY, orphanRemoval = true)
+ 	@JoinColumn(name = "SMID", referencedColumnName = "id")
+	private List<SecurityContact> securityContactList;
+	
+	@Column(name ="stnType")
+	private String stnType;
+	
+	
+	
+	@OneToMany(targetEntity=PassengerEntity.class,cascade = CascadeType.ALL, 
+		    fetch = FetchType.LAZY, orphanRemoval = true)
+	@JoinColumn(name = "SMID", referencedColumnName = "id")
+	private List<LineMaster> lineMasterList;
+	
+	@OneToMany(targetEntity=PassengerEntity.class,cascade = CascadeType.ALL, 
+		    fetch = FetchType.LAZY, orphanRemoval = true)
+	@JoinColumn(name = "SMID", referencedColumnName = "id")
+	private List<GateArray> gateArrayList;
+	
+	@OneToMany(targetEntity=PassengerEntity.class,cascade = CascadeType.ALL, 
+		    fetch = FetchType.LAZY, orphanRemoval = true)
+	@JoinColumn(name = "SMID", referencedColumnName = "id")
+	private List<HardwareMaster> hardwareMasterList;
+	
+	
+	public List<HardwareMaster> getHardwareMasterList() {
+		return hardwareMasterList;
+	}
+
+	public void setHardwareMasterList(List<HardwareMaster> hardwareMasterList) {
+		this.hardwareMasterList = hardwareMasterList;
+	}
+
+	public List<GateArray> getGateArrayList() {
+		return gateArrayList;
+	}
+
+	public void setGateArrayList(List<GateArray> gateArrayList) {
+		this.gateArrayList = gateArrayList;
+	}
+
 	@Column(name = "intchngLine")
 	private String intchngLine;
 	
+	
+	@OneToMany(targetEntity=PassengerEntity.class,cascade = CascadeType.ALL, 
+		    fetch = FetchType.LAZY, orphanRemoval = true)
+	@JoinColumn(name = "SMID", referencedColumnName = "id")
+	private List<PlatformMaster> platformMasterList;
+	
+	/*
+	 * @Column(name = "noOfPlatforms") private Long NoOfPlatforms;
+	 */
+	
+	public List<PlatformMaster> getPlatformMasterList() {
+		return platformMasterList;
+	}
+
+	public void setPlatformMasterList(List<PlatformMaster> platformMasterList) {
+		this.platformMasterList = platformMasterList;
+	}
+
 	@Column(name ="orgLine")
 	private String orgLine;
 
@@ -64,12 +143,71 @@ public class StationMasterEntity implements Serializable{
 		this.stnName = stnName;
 	}
 
-	public Boolean getIsInterChange() {
-		return isInterChange;
+	public String getStnAddress() {
+		return stnAddress;
 	}
 
-	public void setIsInterChange(Boolean isInterChange) {
-		this.isInterChange = isInterChange;
+	public void setStnAddress(String stnAddress) {
+		this.stnAddress = stnAddress;
+	}
+
+	public String getLandMark() {
+		return landMark;
+	}
+
+	public void setLandMark(String landMark) {
+		this.landMark = landMark;
+	}
+
+	public Long getGpsLocation() {
+		return gpsLocation;
+	}
+
+	public void setGpsLocation(Long gpsLocation) {
+		this.gpsLocation = gpsLocation;
+	}
+
+	public String getStnBrandName() {
+		return stnBrandName;
+	}
+
+	public void setStnBrandName(String stnBrandName) {
+		this.stnBrandName = stnBrandName;
+	}
+
+	public List<EmergencyContact> getEmergencyContactList() {
+		return emergencyContactList;
+	}
+
+	public void setEmergencyContactList(List<EmergencyContact> emergencyContactList) {
+		this.emergencyContactList = emergencyContactList;
+	}
+
+	public List<SecurityContact> getSecurityContactList() {
+		return securityContactList;
+	}
+
+	public void setSecurityContactList(List<SecurityContact> securityContactList) {
+		this.securityContactList = securityContactList;
+	}
+	
+	
+	public String getStnType() {
+		return stnType;
+	}
+
+	public void setStnType(String stnType) {
+		this.stnType = stnType;
+	}
+	
+	
+
+	public List<LineMaster> getLineMasterList() {
+		return lineMasterList;
+	}
+
+	public void setLineMasterList(List<LineMaster> lineMasterList) {
+		this.lineMasterList = lineMasterList;
 	}
 
 	public String getIntchngLine() {
@@ -80,6 +218,7 @@ public class StationMasterEntity implements Serializable{
 		this.intchngLine = intchngLine;
 	}
 
+
 	public String getOrgLine() {
 		return orgLine;
 	}
@@ -87,6 +226,7 @@ public class StationMasterEntity implements Serializable{
 	public void setOrgLine(String orgLine) {
 		this.orgLine = orgLine;
 	}
-	
+
+		
 	
 }

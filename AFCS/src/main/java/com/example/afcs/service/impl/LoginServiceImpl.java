@@ -54,14 +54,8 @@ public class LoginServiceImpl implements LoginService {
 		String userName = loginRequest.getUserId();
 		String userPassword = loginRequest.getPwd();
 		List<LoginRequest> loginResponseList = new ArrayList<LoginRequest>();
-
-		// UserProfileDto userProfile = new UserProfileDto();
-
 		UserEntity userEntity = getUserProfile(userName); // User name must be unique in our system
 
-		// Here we perform authentication business logic
-		// If authentication fails, we throw new AuthenticationException
-		// other wise we return UserProfile Details
 		String secureUserPassword = null;
 		boolean authenticated = false;
 		/*
@@ -79,30 +73,58 @@ public class LoginServiceImpl implements LoginService {
 		 * authenticated = true; } }
 		 */
 
-		if (userPassword != null && userPassword.equalsIgnoreCase(userEntity.getUserPassword())) {
-			if (userName != null && userName.equalsIgnoreCase(userEntity.getEmailId())) {
-				authenticated = true;
-				String token = generateNewToken();
-				loginRequest.setToken(token);
-				userEntity.setToken(token);
-				userEntity = updateUser(userEntity);
-				loginRequest.setStatus("Success");
+		if ("Customer".equalsIgnoreCase(userEntity.getUserRole())) {
+			if (userPassword != null && userPassword.equalsIgnoreCase(userEntity.getUserPassword())) {
+				if (userName != null && userName.equalsIgnoreCase(userEntity.getEmailId())) {
+					authenticated = true;
+					String token = generateNewToken();
+					loginRequest.setToken(token);
+					userEntity.setToken(token);
+					userEntity = updateUser(userEntity);
+					loginRequest.setStatus("Success");
+					loginRequest.setPwd(null);
+					loginResponseList.add(loginRequest);
+					afcsApiResponse.setPayloadObj(loginResponseList);
+					afcsApiResponse.setResMessage("Login Succesfull");
+					afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
+					// loginRequest.setStations(stationMap);
+				}
+			} else {
+				loginRequest.setStatus("Failed");
 				loginRequest.setPwd(null);
-				loginResponseList.add(loginRequest);
 				afcsApiResponse.setPayloadObj(loginResponseList);
-				afcsApiResponse.setResMessage("Login Succesfull");
-				afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
-				// loginRequest.setStations(stationMap);
-			}
-		}else {
-			loginRequest.setStatus("Failed");
-			loginRequest.setPwd(null);
-			afcsApiResponse.setPayloadObj(loginResponseList);
-			afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
-			afcsApiResponse.setResMessage("Failed");
-			
-		}
+				afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
+				afcsApiResponse.setResMessage("Failed");
 
+			} 
+		}else {
+			if (userPassword != null && userPassword.equalsIgnoreCase(userEntity.getUserPassword())) {
+				if (userName != null && userName.equalsIgnoreCase(userEntity.getEmailId())) {
+					authenticated = true;
+					String deviceId = loginRequest.getDeviceId();
+					
+					
+					String token = generateNewToken();
+					loginRequest.setToken(token);
+					userEntity.setToken(token);
+					userEntity = updateUser(userEntity);
+					loginRequest.setStatus("Success");
+					loginRequest.setPwd(null);
+					loginResponseList.add(loginRequest);
+					afcsApiResponse.setPayloadObj(loginResponseList);
+					afcsApiResponse.setResMessage("Login Succesfull");
+					afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
+					// loginRequest.setStations(stationMap);
+				}
+			} else {
+				loginRequest.setStatus("Failed");
+				loginRequest.setPwd(null);
+				afcsApiResponse.setPayloadObj(loginResponseList);
+				afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
+				afcsApiResponse.setResMessage("Failed");
+
+			}
+		}
 		if (!authenticated) {
 			try {
 				throw new Exception("Authentication failed");

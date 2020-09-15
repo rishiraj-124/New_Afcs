@@ -30,7 +30,17 @@ public class PassengerMasterEntity implements Serializable {
 	
 	@Column(name ="paxType")
 	private String paxType;
-
+	
+	@Column(name="description")
+	private String desc;
+	
+	@Column(name="criteria")
+	private String criteria;
+	
+	@Column(name="docReq")
+	private String docReq;
+	
+	
 	public Long getId() {
 		return id;
 	}
@@ -54,4 +64,30 @@ public class PassengerMasterEntity implements Serializable {
 	public void setPaxType(String paxType) {
 		this.paxType = paxType;
 	}
+
+	public String getDesc() {
+		return desc;
+	}
+
+	public void setDesc(String desc) {
+		this.desc = desc;
+	}
+
+	public String getCriteria() {
+		return criteria;
+	}
+
+	public void setCriteria(String criteria) {
+		this.criteria = criteria;
+	}
+
+	public String getDocReq() {
+		return docReq;
+	}
+
+	public void setDocReq(String docReq) {
+		this.docReq = docReq;
+	}
+	
+	
 }

@@ -2,9 +2,8 @@ package com.example.afcs.controller;
 
 
 
-import java.security.SecureRandom;
-import java.util.Base64;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.example.afcs.bean.AfcsApiRequest;
 import com.example.afcs.bean.AfcsApiResponse;
@@ -38,17 +38,20 @@ import com.example.afcs.main.ApplicationPropertyReader;
 import com.example.afcs.model.UserEntity;
 import com.example.afcs.service.LoginService;
 import com.example.afcs.service.TicketingService;
-import com.example.afcs.util.ExceptionUtils;
-import com.example.afcs.util.KeyEncryptionUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.afcs.util.AFCSConstants;
 import com.example.afcs.util.AFCSUtil;
+import com.example.afcs.util.ExceptionUtils;
+import com.example.afcs.util.KeyEncryptionUtils;
 
 
 @Controller
 @RequestMapping("/ticketing")
 @ComponentScan({"com.example.afcs.bean","com.example.afcs.service"})
 public class TicketingController {
+	
+	static {
+		System.out.println("********************");
+	}
 	
 	private static final Logger log = LoggerFactory.getLogger(TicketingController.class);
 	@Autowired
@@ -67,7 +70,7 @@ public class TicketingController {
 	 
 	
 	
-	
+
 	
 	
 	@PostMapping(path="/login",consumes="application/json",produces="application/json")
