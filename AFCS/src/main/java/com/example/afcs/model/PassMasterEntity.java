@@ -51,6 +51,12 @@ public class PassMasterEntity implements Serializable {
 	@Column(name ="passAmt")
 	private Integer passAmt;
 	
+	@Column(name ="discAmt")
+	private Integer discAmt;
+	
+	@Column(name ="amtToPay")
+	private Integer amtToPay;
+	
 	@Column(name ="validity")
 	private String validity;
 	
@@ -68,6 +74,12 @@ public class PassMasterEntity implements Serializable {
 	
 	@Column(name ="doc_Reqd")
 	private String doc_Reqd;
+	
+	@Column(name ="doc_Type")
+	private String doc_Type;
+	
+	@Column(name ="dt_Issue")
+	private String dt_Issue;
 
 	public Long getId() {
 		return id;
@@ -141,6 +153,22 @@ public class PassMasterEntity implements Serializable {
 		this.passAmt = passAmt;
 	}
 
+	public Integer getDiscAmt() {
+		return discAmt;
+	}
+
+	public void setDiscAmt(Integer discAmt) {
+		this.discAmt = discAmt;
+	}
+
+	public Integer getAmtToPay() {
+		return amtToPay;
+	}
+
+	public void setAmtToPay(Integer amtToPay) {
+		this.amtToPay = amtToPay;
+	}
+
 	public String getValidity() {
 		return validity;
 	}
@@ -189,5 +217,24 @@ public class PassMasterEntity implements Serializable {
 		this.doc_Reqd = doc_Reqd;
 	}
 
+	public String getDoc_Type() {
+		return doc_Type;
+	}
+
+	public void setDoc_Type(String doc_Type) {
+		this.doc_Type = doc_Type;
+	}
+
+	public String getDt_Issue() {
+		return dt_Issue;
+	}
+
+	public void setDt_Issue(String dt_Issue) {
+		this.dt_Issue = dt_Issue;
+	}
+	
+	
+	
+	
 	
 }

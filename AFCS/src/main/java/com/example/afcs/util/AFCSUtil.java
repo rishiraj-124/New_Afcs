@@ -2,7 +2,9 @@ package com.example.afcs.util;
 
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
@@ -207,7 +209,15 @@ public class AFCSUtil {
         } 
 
         return sb.toString(); 
-}
+}	
+
+	private static final SecureRandom secureRandom = new SecureRandom();
+	private static final Base64.Encoder base64Encoder = Base64.getUrlEncoder();
+	public static String generateNewToken() {
+	    byte[] randomBytes = new byte[24];
+	    secureRandom.nextBytes(randomBytes);
+	    return base64Encoder.encodeToString(randomBytes);
+	}
 
 	/*
 	 * public static String getSHATwoStr(String plainStr) {

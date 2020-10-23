@@ -2,14 +2,19 @@ package com.example.afcs.service.impl;
 
 import java.security.SecureRandom;
 import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.OneToMany;
+import javax.persistence.TypedQuery;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +27,19 @@ import com.example.afcs.bean.CustomerRegistrationRequest;
 import com.example.afcs.bean.IssueValueQRRequest;
 import com.example.afcs.bean.MasterDataRequest;
 import com.example.afcs.bean.MobileVerificationRequest;
+import com.example.afcs.bean.MyTicketRequest;
+import com.example.afcs.bean.MyTripsRequest;
+import com.example.afcs.bean.PassFareRequest;
+import com.example.afcs.bean.PassQRRequest;
+import com.example.afcs.bean.PassSerialNumRequest;
 import com.example.afcs.bean.Passenger;
 import com.example.afcs.bean.QRPassRequest;
 import com.example.afcs.bean.ScanQRTicketRequest;
+import com.example.afcs.bean.ShiftRepoSummRequest;
 import com.example.afcs.bean.SingleJourneyRequest;
+import com.example.afcs.bean.SubmitTicketRequest;
+import com.example.afcs.bean.TicketFareRequest;
+import com.example.afcs.bean.TransactionDetail;
 import com.example.afcs.dao.JourneyTicketDAO;
 import com.example.afcs.dao.MasterDataDAO;
 import com.example.afcs.dao.UserEntityDAO;
@@ -124,12 +138,29 @@ public class TicketingServiceImpl implements TicketingService{
 	public AfcsApiResponse custReg(CustomerRegistrationRequest custRegReq) {
 		
 		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		UserEntity userEntity=null;
+		List<CustomerRegistrationRequest> customerRegistrationResponseList = null;
 		try {
 			log.debug("********custReg method starts*********");
+			userEntity = userEntityDAO.getUserProfile(custRegReq.getEmail());
 			
-			UserEntity userEntity = userEntityDAO.getUserProfile(custRegReq.getEmail());
+			if(userEntity!=null) {
+				customerRegistrationResponseList = new ArrayList<CustomerRegistrationRequest>();
+				afcsApiResponse.setPayloadObj(customerRegistrationResponseList);
+				afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
+				afcsApiResponse.setResMessage("Email_Id already Exist");
+				return afcsApiResponse;
+			}else {
+			userEntity = userEntityDAO.findByMobile(custRegReq.getMobile());
+				if(userEntity!=null) {
+					customerRegistrationResponseList = new ArrayList<CustomerRegistrationRequest>();
+					afcsApiResponse.setPayloadObj(customerRegistrationResponseList);
+					afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
+					afcsApiResponse.setResMessage("Mobile already Exist");
+					return afcsApiResponse;
+				}
+			}
 			
-			List<CustomerRegistrationRequest> customerRegistrationResponseList = null;
 			if (null != custRegReq && null == userEntity) {
 				userEntity = new UserEntity();
 				userEntity.setFirstName(custRegReq.getFirstName());
@@ -160,11 +191,6 @@ public class TicketingServiceImpl implements TicketingService{
 					afcsApiResponse.setResMessage("Successfully Registered and verification Link sent ");
 
 				}
-			}else {
-				customerRegistrationResponseList = new ArrayList<CustomerRegistrationRequest>();
-				afcsApiResponse.setPayloadObj(customerRegistrationResponseList);
-				afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
-				afcsApiResponse.setResMessage("EmailId already Exist");
 			}
 
 		} catch (Exception e) {
@@ -364,12 +390,394 @@ public class TicketingServiceImpl implements TicketingService{
 		return afcsApiResponse;
 	}
 
+	@Override
+	public AfcsApiResponse getMyTrips(MyTripsRequest myTripsRequest) {
+		
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		List<MyTripsRequest> myTripsRequestList = new ArrayList<MyTripsRequest>();
+		MyTripsRequest myTripsRequest2=null;
+		/* static Data Start */
+		for(int i=1; i<=Integer.parseInt(myTripsRequest.getNoOfTrips());i++) {
+			myTripsRequest2 = new MyTripsRequest();
+			
+			myTripsRequest2.setCustomerId(myTripsRequest.getCustomerId());
+			myTripsRequest2.setDeviceId(myTripsRequest.getDeviceId());
+			myTripsRequest2.setDeviceIp(myTripsRequest.getDeviceIp());
+			myTripsRequest2.setNoOfTrips(myTripsRequest.getNoOfTrips());
+			myTripsRequest2.setTripStartFrom(myTripsRequest.getTripStartFrom());
+			
+			
+			myTripsRequest2.setTripId(String.valueOf(i));
+			myTripsRequest2.setTripDate("2020-10-14");
+			myTripsRequest2.setTripStartTime("09:15 A.M");
+			myTripsRequest2.setTripEndTime("11:19 A.M");
+			myTripsRequest2.setTripAmount("60");
+			if(i<5) {
+			myTripsRequest2.setPaymentMode("Cash");
+			}else {
+				myTripsRequest2.setPaymentMode("NetBanking");	
+			}
+			myTripsRequest2.setInStnName("Janakpuri");
+			myTripsRequest2.setOutStnName("Dwarka");
+			myTripsRequest2.setInGateId("1");
+			myTripsRequest2.setOutGateId("5");
+		
+			myTripsRequestList.add(myTripsRequest2);
+		}
+		 
+		afcsApiResponse.setPayloadObj(myTripsRequestList);
+		afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
+		afcsApiResponse.setResMessage("Success");
+		
+		
+		/* static Data End */
+		return afcsApiResponse;
+	}
 	
 	
 
+	@Override
+	public AfcsApiResponse getFare(TicketFareRequest ticketFareRequest) {
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		List<TicketFareRequest> ticketFareRequestList = new ArrayList<TicketFareRequest>();
+		
+		//For Fare***************
+		int fare=0; int discount=0;
+		int distance = Integer.parseInt(ticketFareRequest.getDesStnId())+Integer.parseInt(ticketFareRequest.getSrcStnId());
+		if("1".equalsIgnoreCase(ticketFareRequest.getPaxType())) {
+			fare = distance*10;
+		}else if("2".equalsIgnoreCase(ticketFareRequest.getPaxType())){
+			fare = distance*8;
+		} else {
+			fare = distance*9;
+		}
+		
+		if("3".equalsIgnoreCase(ticketFareRequest.getPaxType())) {
+			discount=5;
+		}
+		
+		
+		
+		if("1".equalsIgnoreCase(ticketFareRequest.getTktJrnyType())) {
+			fare = fare*Integer.parseInt(ticketFareRequest.getNoOfPax());
+		}else {
+			fare = fare*Integer.parseInt(ticketFareRequest.getNoOfPax());
+			fare = fare*2;
+		}
+		
+		int netAmount = fare-discount;
+		
+		ticketFareRequest.setFareAmt(String.valueOf(fare));
+		ticketFareRequest.setDiscount(String.valueOf(discount));
+		ticketFareRequest.setNetAmount(String.valueOf(netAmount));
+		ticketFareRequestList.add(ticketFareRequest);
+		
+		
+		afcsApiResponse.setPayloadObj(ticketFareRequestList);
+		afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
+		afcsApiResponse.setResMessage("Success");
+		
+		return afcsApiResponse;
+	}
+	
+	@Override  
+	public UserEntity getUserByToken(String token) {
+		UserEntity userEntity=null;
+		try {
+			
+			userEntity = userEntityDAO.getUserByToken(token);
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
+
+		return userEntity;
+	}
+
+	@Override
+	public AfcsApiResponse getTktSerialNo(SubmitTicketRequest submitTicketRequest) {
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		List<SubmitTicketRequest> submitTicketRequestList = new ArrayList<SubmitTicketRequest>();
+		
+		submitTicketRequest.setTktId(AFCSUtil.getRandomNum(3));
+		submitTicketRequest.setTktSrNo(AFCSUtil.getRandomNum(18));
+		
+		LocalDate date = LocalDate.now();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+		String sdate = date.format(formatter);
+		submitTicketRequest.setTktRequestDate(sdate);
+		
+		
+		Calendar cal = Calendar.getInstance();
+		String sTime = cal.get(Calendar.HOUR_OF_DAY)+":"+cal.get(Calendar.MINUTE)+":"+cal.get(Calendar.SECOND);
+		
+		submitTicketRequest.setTktRequestTime(sTime);
+		
+		submitTicketRequestList.add(submitTicketRequest);
+		
+		
+		afcsApiResponse.setPayloadObj(submitTicketRequestList);
+		afcsApiResponse.setResMessage("Ticket Serial Number generated");
+		afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
+		
+		
+		
+		
+		
+		return afcsApiResponse;
+	}
+
+	@Override
+	public AfcsApiResponse getShiftSumm(ShiftRepoSummRequest shiftRepoSummRequest) {
+		
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		List<ShiftRepoSummRequest> submitTicketRequestList = new ArrayList<ShiftRepoSummRequest>();
+		
+		shiftRepoSummRequest.setCash(AFCSUtil.getRandomNum(4));
+		shiftRepoSummRequest.setCard(AFCSUtil.getRandomNum(6));
+		
+		shiftRepoSummRequest.setTotalAmt(shiftRepoSummRequest.getCash()+shiftRepoSummRequest.getCash());
+		submitTicketRequestList.add(shiftRepoSummRequest);
+		
+		afcsApiResponse.setPayloadObj(submitTicketRequestList);
+		afcsApiResponse.setResMessage("Shift Report");
+		afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
+		
+		
+		return afcsApiResponse;
+	}
+
+	@Override
+	public AfcsApiResponse getShiftDetail(ShiftRepoSummRequest shiftRepoSummRequest) {
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		List<ShiftRepoSummRequest> submitTicketRequestList = new ArrayList<ShiftRepoSummRequest>();
+		List<TransactionDetail> transactionDetailList = new ArrayList<TransactionDetail>();
+		TransactionDetail transactionDetail=null;
+		if(shiftRepoSummRequest.getTxnNum()!=null && !"".equalsIgnoreCase(shiftRepoSummRequest.getTxnNum())) {
+			for (int i = 1; i <= Integer.parseInt(shiftRepoSummRequest.getTxnNum()); i++) {
+				transactionDetail = new TransactionDetail();
+				transactionDetail.setTxnId(AFCSUtil.getRandomNum(2));
+				transactionDetail.setTxnAmnt(AFCSUtil.getRandomNum(3));
+				if (i <= 3) {
+					transactionDetail.setPaymentMode("Cash");
+					transactionDetail.setTxnTime("06:00");
+					transactionDetail.setTxnType("Tkt");
+				} else {
+					transactionDetail.setPaymentMode("Card");
+					transactionDetail.setTxnTime("11:50");
+					transactionDetail.setTxnType("Pass");
+				}
+				
+				transactionDetailList.add(transactionDetail);
+			}
+			
+			afcsApiResponse.setPayloadObj(transactionDetailList);
+			afcsApiResponse.setResMessage("Shift Report");
+			afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
+			
+			
+		}else {
+			afcsApiResponse.setResMessage("Txn Num can't be empty/null");
+		}
+		
+		
+		return afcsApiResponse;
+	}
 
 	
-	
+	public AfcsApiResponse getMyValidTicket(MyTicketRequest myTicketRequest) {
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		List<SingleJourneyRequest> submitTicketRequestList = new ArrayList<SingleJourneyRequest>();
+
+		if ("sjt".equalsIgnoreCase(myTicketRequest.getTicketType())) {
+			List<SingleJourneyRequest> singleJourneyRequestList = new ArrayList<SingleJourneyRequest>();
+			for (int i = 1; i <= Integer.parseInt(myTicketRequest.getValidTicket()); i++) {
+				SingleJourneyRequest singleJourneyRequest = new SingleJourneyRequest();
+				singleJourneyRequest.setTktType("SJT");
+				if (i > 1) {
+					singleJourneyRequest.setPaidAmt("200");
+				} else {
+					singleJourneyRequest.setPaidAmt("300");
+				}
+				singleJourneyRequest.setPayMode("Cash");
+				singleJourneyRequest.setCustImei(myTicketRequest.getDeviceId());
+				singleJourneyRequest.setCustIpAddress(myTicketRequest.getDeviceIp());
+				if (i > 1) {
+					singleJourneyRequest.setTicketId("325");
+				} else {
+					singleJourneyRequest.setTicketId("056");
+				}
+
+				singleJourneyRequest.setTktNo(Long.valueOf(AFCSUtil.getRandomNum(6)));
+				singleJourneyRequest.setQrTicketHash(AFCSUtil.getAlphaNumericString(60));
+				singleJourneyRequest.setPaymentStatus("Success");
+				singleJourneyRequest.setTkt_status("Success");
+				singleJourneyRequest.setTkt_validity("Valid");
+
+				LocalDate date = LocalDate.now();
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+				String sdate = date.format(formatter);
+
+				singleJourneyRequest.setTktBookingdt(sdate);
+
+				Calendar cal = Calendar.getInstance();
+				String sTime = cal.get(Calendar.HOUR_OF_DAY) + ":" + cal.get(Calendar.MINUTE) + ":"
+						+ cal.get(Calendar.SECOND);
+
+				singleJourneyRequest.setTktBookingTime(sTime);
+
+				singleJourneyRequest.setTktValiddt(sdate);
+				singleJourneyRequest.setTktValidTime(sTime);
+				
+				submitTicketRequestList.add(singleJourneyRequest);
+			}
+		}else if("pass".equalsIgnoreCase(myTicketRequest.getTicketType())){
+			
+
+			List<SingleJourneyRequest> singleJourneyRequestList = new ArrayList<SingleJourneyRequest>();
+			for (int i = 1; i <= Integer.parseInt(myTicketRequest.getValidTicket()); i++) {
+				SingleJourneyRequest singleJourneyRequest = new SingleJourneyRequest();
+				singleJourneyRequest.setTktType("PASS");
+				if (i > 1) {
+					singleJourneyRequest.setPaidAmt("200");
+				} else {
+					singleJourneyRequest.setPaidAmt("300");
+				}
+				singleJourneyRequest.setPayMode("Cash");
+				singleJourneyRequest.setCustImei(myTicketRequest.getDeviceId());
+				singleJourneyRequest.setCustIpAddress(myTicketRequest.getDeviceIp());
+				if (i > 1) {
+					singleJourneyRequest.setTicketId("325");
+				} else {
+					singleJourneyRequest.setTicketId("056");
+				}
+
+				singleJourneyRequest.setTktNo(Long.valueOf(AFCSUtil.getRandomNum(6)));
+				singleJourneyRequest.setQrTicketHash(AFCSUtil.getAlphaNumericString(60));
+				singleJourneyRequest.setPaymentStatus("Success");
+				singleJourneyRequest.setTkt_status("Success");
+				singleJourneyRequest.setTkt_validity("Valid");
+
+				LocalDate date = LocalDate.now();
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+				String sdate = date.format(formatter);
+
+				singleJourneyRequest.setTktBookingdt(sdate);
+
+				Calendar cal = Calendar.getInstance();
+				String sTime = cal.get(Calendar.HOUR_OF_DAY) + ":" + cal.get(Calendar.MINUTE) + ":"
+						+ cal.get(Calendar.SECOND);
+
+				singleJourneyRequest.setTktBookingTime(sTime);
+
+				singleJourneyRequest.setTktValiddt(sdate);
+				singleJourneyRequest.setTktValidTime(sTime);
+				
+				submitTicketRequestList.add(singleJourneyRequest);
+			}
+		
+		}
+		
+		afcsApiResponse.setPayloadObj(submitTicketRequestList);
+		afcsApiResponse.setResMessage("My Valid Tickets");
+		afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
+		
+		return afcsApiResponse;
+	}
+
+	@Override
+	public AfcsApiResponse getPassDetails(PassFareRequest passFareRequest) {
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		
+		MasterDataEntity masterDataEntity = masterDataDAO.getMasterData();
+		List<PassMasterEntity> passMasterEntities = masterDataEntity.getPassList();
+		
+		for(PassMasterEntity passMasterEntity :passMasterEntities) {
+			LocalDate date = LocalDate.now();
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+			String sdate = date.format(formatter);
+			passMasterEntity.setDt_Issue(sdate);
+			passMasterEntity.setValidFrom(passFareRequest.getSrcStationId());
+			passMasterEntity.setValidTo(passFareRequest.getDestStationId());
+			passMasterEntity.setPassType(passFareRequest.getPassType());
+			passMasterEntity.setPassName(passFareRequest.getPassType());
+		}
+		
+		afcsApiResponse.setPayloadObj(passMasterEntities);
+		afcsApiResponse.setResMessage("Trip Pass Details");
+		afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
+		
+		
+		
+		return afcsApiResponse;
+	}
+
+	@Override
+	public AfcsApiResponse getPassSerialNumber(PassSerialNumRequest passSerialNumRequest) {
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		List<PassSerialNumRequest> passSerialNumRequestList = new ArrayList<PassSerialNumRequest>();
+		
+		LocalDate date = LocalDate.now();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+		String sdate = date.format(formatter);
+		
+		passSerialNumRequest.setDtIssue(sdate);
+		
+
+		Calendar cal = Calendar.getInstance();
+		String sTime = cal.get(Calendar.HOUR_OF_DAY) + ":" + cal.get(Calendar.MINUTE) + ":"
+				+ cal.get(Calendar.SECOND);
+		
+		passSerialNumRequest.setValidUpto(sdate);
+		passSerialNumRequest.setPassId(AFCSUtil.getRandomNum(2));
+		passSerialNumRequest.setPassSerialNum(AFCSUtil.getRandomNum(8));
+		passSerialNumRequest.setPassRequestDate(sdate);
+		passSerialNumRequest.setPassRequestTime(sTime);
+		passSerialNumRequest.setDuration("30 Days");
+		
+		passSerialNumRequestList.add(passSerialNumRequest);
+		
+		afcsApiResponse.setPayloadObj(passSerialNumRequestList);
+		afcsApiResponse.setResMessage("Pass Ticket Serial Num generated");
+		afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
+		
+		return afcsApiResponse;
+	}
+
+	@Override
+	public AfcsApiResponse getPassQRCode(PassQRRequest passQRRequest) {
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		List<PassQRRequest> passQRRequestList = new ArrayList<PassQRRequest>();
+		
+		LocalDate date = LocalDate.now();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+		String sdate = date.format(formatter);
+		
+		passQRRequest.setDtIssue(sdate);
+		
+		Calendar cal = Calendar.getInstance();
+		String sTime = cal.get(Calendar.HOUR_OF_DAY) + ":" + cal.get(Calendar.MINUTE) + ":"
+				+ cal.get(Calendar.SECOND);
+		passQRRequest.setPassRequestTime(sTime);
+		
+		passQRRequest.setValidUpto(sdate);
+		passQRRequest.setValidUptoTime(sTime);
+		
+		passQRRequest.setPassQRCode(AFCSUtil.getAlphaNumericString(60));
+		passQRRequest.setDuration("30 Days");
+		passQRRequest.setDocType("Aadhaar");
+		passQRRequest.setDocRequired("Yes");
+		passQRRequest.setDocAttached(AFCSUtil.getAlphaNumericString(20));
+		
+		passQRRequestList.add(passQRRequest);
+		
+		afcsApiResponse.setPayloadObj(passQRRequestList);
+		afcsApiResponse.setResMessage("Pass QRCode generated");
+		afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
+		
+		return afcsApiResponse;
+	}
+
 	
 
 }

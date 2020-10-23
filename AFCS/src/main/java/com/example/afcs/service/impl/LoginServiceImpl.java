@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.afcs.bean.AfcsApiRequest;
 import com.example.afcs.bean.AfcsApiResponse;
+import com.example.afcs.bean.AgentLoginRequest;
 import com.example.afcs.bean.ChangePasswordRequest;
 import com.example.afcs.bean.LoginRequest;
 import com.example.afcs.bean.MobileVerificationRequest;
@@ -51,10 +52,17 @@ public class LoginServiceImpl implements LoginService {
 	public AfcsApiResponse login(LoginRequest loginRequest) {
 		
 		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		UserEntity userEntity=null;
 		String userName = loginRequest.getUserId();
 		String userPassword = loginRequest.getPwd();
+		String mobile = loginRequest.getMobile();
 		List<LoginRequest> loginResponseList = new ArrayList<LoginRequest>();
-		UserEntity userEntity = getUserProfile(userName); // User name must be unique in our system
+		
+		if(userName!=null) {
+		userEntity = getUserProfile(userName); // User name must be unique in our system
+		}else {
+			userEntity = userEntityDAO.findByMobile(mobile);
+		}
 
 		String secureUserPassword = null;
 		boolean authenticated = false;
@@ -73,57 +81,51 @@ public class LoginServiceImpl implements LoginService {
 		 * authenticated = true; } }
 		 */
 
-		if ("Customer".equalsIgnoreCase(userEntity.getUserRole())) {
-			if (userPassword != null && userPassword.equalsIgnoreCase(userEntity.getUserPassword())) {
-				if (userName != null && userName.equalsIgnoreCase(userEntity.getEmailId())) {
-					authenticated = true;
-					String token = generateNewToken();
-					loginRequest.setToken(token);
-					userEntity.setToken(token);
-					userEntity = updateUser(userEntity);
-					loginRequest.setStatus("Success");
+		if (userEntity!=null) {
+			if ("Customer".equalsIgnoreCase(userEntity.getUserRole())) {
+				if ((userPassword != null && userPassword.equalsIgnoreCase(userEntity.getUserPassword()))
+						&&(mobile != null && mobile.equalsIgnoreCase(userEntity.getMobile())) ){
+					if ("Verified".equalsIgnoreCase(userEntity.getMobileVerificationStatus()))
+						{
+						authenticated = true;
+						String token = generateNewToken();
+						loginRequest.setToken(token);
+						userEntity.setToken(token);
+						userEntity = updateUser(userEntity);
+						loginRequest.setStatus("Mobile Verified");
+						loginRequest.setPwd(null);
+						loginRequest.setId(String.valueOf(userEntity.getId()));
+						loginRequest.setFirstName(userEntity.getFirstName());
+						loginRequest.setLastName(userEntity.getLastName());
+						loginRequest.setEmailId(userEntity.getEmailId());
+						loginRequest.setMobile(userEntity.getMobile());
+						loginResponseList.add(loginRequest);
+						afcsApiResponse.setPayloadObj(loginResponseList);
+						afcsApiResponse.setResMessage("Login Succesfull");
+						afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
+						// loginRequest.setStations(stationMap);
+					}else {
+						loginRequest.setStatus("Failed");
+						loginRequest.setPwd(null);
+						afcsApiResponse.setPayloadObj(loginResponseList);
+						afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
+						afcsApiResponse.setResMessage("Mobile not verified");
+					}
+				} else {
+					loginRequest.setStatus("Failed");
 					loginRequest.setPwd(null);
-					loginResponseList.add(loginRequest);
 					afcsApiResponse.setPayloadObj(loginResponseList);
-					afcsApiResponse.setResMessage("Login Succesfull");
-					afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
-					// loginRequest.setStations(stationMap);
-				}
-			} else {
-				loginRequest.setStatus("Failed");
-				loginRequest.setPwd(null);
-				afcsApiResponse.setPayloadObj(loginResponseList);
-				afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
-				afcsApiResponse.setResMessage("Failed");
+					afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
+					afcsApiResponse.setResMessage("Invalid Credentials");
 
-			} 
+				}
+			}  
 		}else {
-			if (userPassword != null && userPassword.equalsIgnoreCase(userEntity.getUserPassword())) {
-				if (userName != null && userName.equalsIgnoreCase(userEntity.getEmailId())) {
-					authenticated = true;
-					String deviceId = loginRequest.getDeviceId();
-					
-					
-					String token = generateNewToken();
-					loginRequest.setToken(token);
-					userEntity.setToken(token);
-					userEntity = updateUser(userEntity);
-					loginRequest.setStatus("Success");
-					loginRequest.setPwd(null);
-					loginResponseList.add(loginRequest);
-					afcsApiResponse.setPayloadObj(loginResponseList);
-					afcsApiResponse.setResMessage("Login Succesfull");
-					afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
-					// loginRequest.setStations(stationMap);
-				}
-			} else {
-				loginRequest.setStatus("Failed");
-				loginRequest.setPwd(null);
-				afcsApiResponse.setPayloadObj(loginResponseList);
-				afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
-				afcsApiResponse.setResMessage("Failed");
-
-			}
+			loginRequest.setStatus("Failed");
+			loginRequest.setPwd(null);
+			afcsApiResponse.setPayloadObj(loginResponseList);
+			afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
+			afcsApiResponse.setResMessage("User not Exist");
 		}
 		if (!authenticated) {
 			try {
@@ -138,6 +140,66 @@ public class LoginServiceImpl implements LoginService {
 
 		
 
+		return afcsApiResponse;
+	}
+	
+
+	@Override
+	public AfcsApiResponse loginAgent(AgentLoginRequest agentLoginRequest) {
+		
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		UserEntity userEntity=null;
+		String userId = agentLoginRequest.getUserId();
+		String userPassword = agentLoginRequest.getPassword();
+		
+		List<AgentLoginRequest> loginResponseList = new ArrayList<AgentLoginRequest>();
+		
+
+		String secureUserPassword = null;
+		boolean authenticated = false;
+		
+		if(userId!=null) {
+		userEntity = getUserProfile(userId); // User name must be unique in our system
+		}
+		
+			if (userPassword != null && userPassword.equalsIgnoreCase(userEntity.getUserPassword())
+				&& (userId != null && userId.equalsIgnoreCase(userEntity.getEmailId()))) {
+			authenticated = true;
+			String token = generateNewToken();
+			agentLoginRequest.setToken(token);
+			userEntity.setToken(token);
+			userEntity = updateUser(userEntity);
+			agentLoginRequest.setStatus("Success");
+			agentLoginRequest.setUserId(userId);
+			agentLoginRequest.setFirstName(userEntity.getFirstName());
+			agentLoginRequest.setLastName(userEntity.getLastName());
+			agentLoginRequest.setMobile(userEntity.getMobile());
+			
+			// static data start-
+			
+			agentLoginRequest.setTerminalId(agentLoginRequest.getTerminalId());
+			agentLoginRequest.setTerminalStatus("Verified");
+			agentLoginRequest.setStationId("23");
+			agentLoginRequest.setStationName("Dwarka Sec21");
+			
+			//static data end-
+			
+			agentLoginRequest.setPassword(null);
+			loginResponseList.add(agentLoginRequest);
+			afcsApiResponse.setPayloadObj(loginResponseList);
+			afcsApiResponse.setResMessage("Login Succesfull");
+			afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
+			// loginRequest.setStations(stationMap);
+
+		} else {
+				agentLoginRequest.setStatus("Failed");
+				agentLoginRequest.setPassword(null);
+				afcsApiResponse.setPayloadObj(loginResponseList);
+				afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
+				afcsApiResponse.setResMessage("Invalid Credentials");
+
+			}
+		
 		return afcsApiResponse;
 	}
 
@@ -174,18 +236,28 @@ public class LoginServiceImpl implements LoginService {
 	public AfcsApiResponse changePassword(ChangePasswordRequest changePasswordRequest) {
 		AfcsApiResponse afcsApiResponse=new AfcsApiResponse();
 		UserEntity userEntity= getUserProfile(changePasswordRequest.getUserId());
-		if(userEntity != null && userEntity.getUserPassword().equals(changePasswordRequest.getOldPassword())) {
+		if(!"Y".equalsIgnoreCase(changePasswordRequest.getFpFlag())) {
+			if(userEntity != null && userEntity.getUserPassword().equals(changePasswordRequest.getOldPassword())) {
+				userEntity.setUserPassword(changePasswordRequest.getNewPassword());
+				userEntity = updateUser(userEntity);
+				if(userEntity.getId()!=null) {
+					afcsApiResponse.setResMessage("Password Changed Succesfully");
+					afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
+				}
+				
+			}else {
+				afcsApiResponse.setResMessage("Old Password not correct");
+				afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
+			}
+		}else {
 			userEntity.setUserPassword(changePasswordRequest.getNewPassword());
 			userEntity = updateUser(userEntity);
 			if(userEntity.getId()!=null) {
 				afcsApiResponse.setResMessage("Password Changed Succesfully");
 				afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
 			}
-			
-		}else {
-			afcsApiResponse.setResMessage("Old Password not correct");
-			afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
 		}
+		
 		
 		return afcsApiResponse;
 	}
@@ -199,6 +271,8 @@ public class LoginServiceImpl implements LoginService {
 			userEntity = userEntityDAO.getUserByToken(afcsApiRequest.getTokenId());
 			
 			if (userEntity.getMobileOtp().equalsIgnoreCase(mobileVerificationRequest.getOtp())) {
+				userEntity.setMobileVerificationStatus("Verified");;
+				userEntity = updateUser(userEntity);
 				afcsApiResponse.setResMessage("Mobile Verification Successful");
 				afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
 			}else {
@@ -215,5 +289,6 @@ public class LoginServiceImpl implements LoginService {
 		
 		return afcsApiResponse;
 	}
+
 
 }

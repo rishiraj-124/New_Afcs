@@ -104,9 +104,10 @@ public class StationMasterEntity implements Serializable{
 	@JoinColumn(name = "SMID", referencedColumnName = "id")
 	private List<PlatformMaster> platformMasterList;
 	
-	/*
-	 * @Column(name = "noOfPlatforms") private Long NoOfPlatforms;
-	 */
+	
+	//@Column(name = "noOfPlatforms") 
+	//private Long NoOfPlatforms;
+	 
 	
 	public List<PlatformMaster> getPlatformMasterList() {
 		return platformMasterList;

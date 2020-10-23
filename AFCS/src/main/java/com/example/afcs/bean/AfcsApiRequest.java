@@ -2,11 +2,14 @@ package com.example.afcs.bean;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 @Component
-public class AfcsApiRequest  implements Serializable{
+public class AfcsApiRequest  implements ValidationBean{
 
 	/**
 	 * 
@@ -14,25 +17,30 @@ public class AfcsApiRequest  implements Serializable{
 	private static final long serialVersionUID = -3889621243991005826L;
 	
 	
-	//@NotNull(message="Channel ID cannot be null.")		
-	@JsonProperty(value = "channelId")
-	private Integer channelId;
+	@NotNull(message="Provide channelId property.")
+	@NotBlank(message="channelId cannot be blank")		
+	@JsonProperty(value = "channelId", required=true)
+	private String channelId;
 
-	//@NotBlank(message="Token ID cannot be blank.")
-	@JsonProperty(value = "tokenId")
+	@NotNull(message="Provide tokenId property.")
+	@NotBlank(message="tokenId cannot be blank")
+	@JsonProperty(value = "tokenId", required=true)
 	private String tokenId;
 
-      
-    @JsonProperty(value = "payload", required = false)
-    private transient Object payloadObj;
+	
+	 
+	@NotNull(message="Provide payload property.")
+	@NotBlank(message="payload cannot be blank")
+	@JsonProperty(value = "payload" , required=true) 
+    private Object payloadObj;
 
 
-	public Integer getChannelId() {
+	public String getChannelId() {
 		return channelId;
 	}
 
 
-	public void setChannelId(Integer channelId) {
+	public void setChannelId(String channelId) {
 		this.channelId = channelId;
 	}
 

@@ -36,6 +36,8 @@ public class ChangePasswordRequest implements ValidationBean{
 	
 	private String ipAddress;
 	
+	private String fpFlag;
+	
 	private String errorMsg;
 
 	public String getUserId() {
@@ -78,6 +80,14 @@ public class ChangePasswordRequest implements ValidationBean{
 		this.ipAddress = ipAddress;
 	}
 	
+	public String getFpFlag() {
+		return fpFlag;
+	}
+
+	public void setFpFlag(String fpFlag) {
+		this.fpFlag = fpFlag;
+	}
+
 	public String getErrorMsg() {
 		return errorMsg;
 	}

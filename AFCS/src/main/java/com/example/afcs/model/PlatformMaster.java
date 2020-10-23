@@ -29,9 +29,13 @@ public class PlatformMaster implements Serializable {
     @Column(name = "id")
 	private Long id;
 	
+	@Column(name = "pNo")
+	private String pNo;
+	
 	@Column(name = "pName")
 	private String pName;
 	
+		
 	@OneToMany(targetEntity=PassengerEntity.class,cascade = CascadeType.ALL, 
 		    fetch = FetchType.LAZY, orphanRemoval = true)
 	@JoinColumn(name = "PFMID", referencedColumnName = "id")
@@ -47,6 +51,14 @@ public class PlatformMaster implements Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public String getpNo() {
+		return pNo;
+	}
+
+	public void setpNo(String pNo) {
+		this.pNo = pNo;
 	}
 
 	public String getpName() {

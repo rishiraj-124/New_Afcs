@@ -48,6 +48,7 @@ public class UserEntityDAOImpl implements UserEntityDAO {
 		try{
 			entityManager.persist(userEntity);
 		
+		
 		}
 		catch(Exception e){
 			String[] exceptionData = ExceptionUtils.getExceptionGeneratedClassDetails(e.getStackTrace(), "com.example.comm");
@@ -57,6 +58,8 @@ public class UserEntityDAOImpl implements UserEntityDAO {
 		return userEntity;
 		
 	}
+	
+	
 
 
 	@Transactional
@@ -65,6 +68,8 @@ public class UserEntityDAOImpl implements UserEntityDAO {
 		try {
 
 			entityManager.merge(userEntity);
+			
+			
 
 		} catch (Exception e) {
 			String[] exceptionData = ExceptionUtils.getExceptionGeneratedClassDetails(e.getStackTrace(),
@@ -87,8 +92,9 @@ public class UserEntityDAOImpl implements UserEntityDAO {
 			TypedQuery<UserEntity> query = entityManager.createNamedQuery("UserEntity.findByMobile",	UserEntity.class);
 			query.setParameter("mobile", mobile);
 			userEntity = query.getSingleResult();
-		} catch (RuntimeException ex) {
-			throw ex;
+		} catch (Exception ex) {
+			//throw ex;
+			return userEntity;
 		}
 
 		return userEntity;

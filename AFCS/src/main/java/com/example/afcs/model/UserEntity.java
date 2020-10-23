@@ -85,6 +85,9 @@ public class UserEntity implements Serializable {
     @Column(name = "mobileOtp")
     private String mobileOtp;
     
+    @Column(name = "mobileVerificationStatus")
+    private String mobileVerificationStatus;
+    
 	public Long getId() {
 		return id;
 	}
@@ -198,6 +201,12 @@ public class UserEntity implements Serializable {
 	}
 	public void setMobileOtp(String mobileOtp) {
 		this.mobileOtp = mobileOtp;
+	}
+	public String getMobileVerificationStatus() {
+		return mobileVerificationStatus;
+	}
+	public void setMobileVerificationStatus(String mobileVerificationStatus) {
+		this.mobileVerificationStatus = mobileVerificationStatus;
 	}
     
     

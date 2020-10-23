@@ -98,6 +98,8 @@ public static final String LOG4J_FILE_PATH_KEY = "LOG4J_FILE_PATH";
 	
 	public static final int REQUEST_FAILED = 400;
 	
+	public static final int INVALID_AUTH_KEY=401;
+	
 	public static final int INTERNAL_SERVER_ERROR = 500;
 	
 	public static final String FORGET_PASS_KEY = "FORGOT_PASSWD";

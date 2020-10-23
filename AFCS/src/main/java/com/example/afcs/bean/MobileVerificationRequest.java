@@ -23,6 +23,8 @@ public class MobileVerificationRequest implements ValidationBean{
 	
 	private String errorMsg;
 	
+	private String userId;
+	
 
 	public String getOtp() {
 		return otp;
@@ -48,6 +50,14 @@ public class MobileVerificationRequest implements ValidationBean{
 		this.ipAddress = ipAddress;
 	}
 	
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
 	public String getErrorMsg() {
 		return errorMsg;
 	}

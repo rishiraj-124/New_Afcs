@@ -25,6 +25,12 @@ public class SingleJourneyRequest implements ValidationBean{
 	
 	private String tktBookingdt;
 	
+	private String tktBookingTime;
+	
+	private String tktValiddt;
+	
+	private String tktValidTime;
+	
 	private Integer srcStnId;
 	
 	private Integer destStnId;
@@ -52,6 +58,10 @@ public class SingleJourneyRequest implements ValidationBean{
 	private String tkt_status;
 	
 	private String tkt_validity;
+	
+	private String ticketId;
+	
+	private String paymentStatus;
 
 	public String getUserId() {
 		return userId;
@@ -208,6 +218,63 @@ public class SingleJourneyRequest implements ValidationBean{
 
 	public void setTkt_validity(String tkt_validity) {
 		this.tkt_validity = tkt_validity;
+	}
+	
+	
+
+
+	public String getTicketId() {
+		return ticketId;
+	}
+
+
+	public void setTicketId(String ticketId) {
+		this.ticketId = ticketId;
+	}
+	
+	
+
+
+	public String getPaymentStatus() {
+		return paymentStatus;
+	}
+
+
+	public void setPaymentStatus(String paymentStatus) {
+		this.paymentStatus = paymentStatus;
+	}
+	
+	
+
+
+
+	public String getTktBookingTime() {
+		return tktBookingTime;
+	}
+
+
+	public void setTktBookingTime(String tktBookingTime) {
+		this.tktBookingTime = tktBookingTime;
+	}
+
+
+	public String getTktValiddt() {
+		return tktValiddt;
+	}
+
+
+	public void setTktValiddt(String tktValiddt) {
+		this.tktValiddt = tktValiddt;
+	}
+
+
+	public String getTktValidTime() {
+		return tktValidTime;
+	}
+
+
+	public void setTktValidTime(String tktValidTime) {
+		this.tktValidTime = tktValidTime;
 	}
 
 

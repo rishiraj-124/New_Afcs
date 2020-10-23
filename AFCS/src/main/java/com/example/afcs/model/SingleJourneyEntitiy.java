@@ -69,7 +69,7 @@ public class SingleJourneyEntitiy implements Serializable {
 		
 	   	
 	   	@OneToMany(targetEntity=PassengerEntity.class,cascade = CascadeType.ALL, 
-	              fetch = FetchType.LAZY, orphanRemoval = true)
+	              orphanRemoval = true)
 	   	@JoinColumn(name = "sjId", referencedColumnName = "id")
 		private List<PassengerEntity> passengers;
 		

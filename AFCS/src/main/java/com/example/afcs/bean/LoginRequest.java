@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.stereotype.Component;
 
+import com.example.afcs.model.UserEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 @Component
 public class LoginRequest implements ValidationBean{
@@ -21,16 +22,30 @@ public class LoginRequest implements ValidationBean{
 	
 	private String token;
 	
-	@NotNull(message="Provide userId property.")
-	@NotBlank(message="userId cannot be blank")
-	@JsonProperty(value = "userId", required=true)
+	/*
+	 * @NotNull(message="Provide userId property.")
+	 * 
+	 * @NotBlank(message="userId cannot be blank")
+	 * 
+	 * @JsonProperty(value = "userId", required=true)
+	 */
 	private String userId;
+	
+	@NotNull(message="Provide mobile property.")
+	@NotBlank(message="mobile cannot be blank")
+	@JsonProperty(value = "mobile", required=true)
+	private String mobile;
 	
 	@NotNull(message="Provide password property.")
 	@NotBlank(message="password cannot be blank")
 	@JsonProperty(value = "pwd", required=true)
 	private String pwd;
 	
+	@NotNull(message="Provide imei property.")
+	@NotBlank(message="imei cannot be blank")
+	@JsonProperty(value = "imei", required=true)
+	private String imei;
+		
 	private Map<String ,Integer> stations;
 	
 	private String status;
@@ -40,6 +55,14 @@ public class LoginRequest implements ValidationBean{
 	private String deviceId;
 	
 	private String apiKey;
+	
+	private String errorMsg;
+	
+	private String firstName;
+	
+	private String lastName;
+	
+	private String emailId;
 	
 	public String getDeviceId() {
 		return deviceId;
@@ -56,9 +79,6 @@ public class LoginRequest implements ValidationBean{
 	public void setApiKey(String apiKey) {
 		this.apiKey = apiKey;
 	}
-
-	private String errorMsg;
-
 	
 	public String getId() {
 		return id;
@@ -84,12 +104,29 @@ public class LoginRequest implements ValidationBean{
 		this.userId = userId;
 	}
 
+	public String getMobile() {
+		return mobile;
+	}
+
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+
 	public String getPwd() {
 		return pwd;
 	}
 
 	public void setPwd(String pwd) {
 		this.pwd = pwd;
+	}
+	
+
+	public String getImei() {
+		return imei;
+	}
+
+	public void setImei(String imei) {
+		this.imei = imei;
 	}
 
 	public Map<String, Integer> getStations() {
@@ -126,11 +163,41 @@ public class LoginRequest implements ValidationBean{
 		this.errorMsg = errorMsg;
 	}
 
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+	public String getEmailId() {
+		return emailId;
+	}
+
+	public void setEmailId(String emailId) {
+		this.emailId = emailId;
+	}
+
 	@Override
 	public String toString() {
-		return "LoginRequest [id=" + id + ", token=" + token + ", userId=" + userId + ", pwd=" + pwd + ", stations="
-				+ stations + ", status=" + status + ", userRole=" + userRole + ", errorMsg=" + errorMsg + "]";
+		return "LoginRequest [id=" + id + ", token=" + token + ", userId=" + userId + ", mobile=" + mobile + ", pwd="
+				+ pwd + ", imei=" + imei + ", stations=" + stations + ", status=" + status + ", userRole=" + userRole
+				+ ", deviceId=" + deviceId + ", apiKey=" + apiKey + ", errorMsg=" + errorMsg + ", firstName="
+				+ firstName + ", lastName=" + lastName + ", emailId=" + emailId + "]";
 	}
+
+	
+
+
 
 	
 
