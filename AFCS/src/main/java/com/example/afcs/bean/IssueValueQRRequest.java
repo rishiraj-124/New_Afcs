@@ -32,7 +32,7 @@ public class IssueValueQRRequest implements ValidationBean{
 	
 	private String ticketValidity;
 	
-	private Date issueDate;
+	private String issueDate;
 	
 	private String issueTime;
 	
@@ -118,11 +118,12 @@ public class IssueValueQRRequest implements ValidationBean{
 		this.ticketValidity = ticketValidity;
 	}
 
-	public Date getIssueDate() {
+
+	public String getIssueDate() {
 		return issueDate;
 	}
 
-	public void setIssueDate(Date issueDate) {
+	public void setIssueDate(String issueDate) {
 		this.issueDate = issueDate;
 	}
 

@@ -4,6 +4,8 @@ import com.example.afcs.bean.AfcsApiRequest;
 import com.example.afcs.bean.AfcsApiResponse;
 import com.example.afcs.bean.AgentLoginRequest;
 import com.example.afcs.bean.ChangePasswordRequest;
+import com.example.afcs.bean.DriverCondLoginRequest;
+import com.example.afcs.bean.LogOutRequest;
 import com.example.afcs.bean.LoginRequest;
 import com.example.afcs.bean.MobileVerificationRequest;
 import com.example.afcs.model.UserEntity;
@@ -13,6 +15,10 @@ public interface LoginService {
 	public AfcsApiResponse login(LoginRequest loginRequest);
 
 	public AfcsApiResponse loginAgent(AgentLoginRequest agentLoginRequest);
+	
+	public AfcsApiResponse loginDriverCond(DriverCondLoginRequest driverCondLoginRequest);
+	
+	public AfcsApiResponse logOut(LogOutRequest logOutRequest);
 
 	public AfcsApiResponse changePassword(ChangePasswordRequest ChangePasswordRequest);
 

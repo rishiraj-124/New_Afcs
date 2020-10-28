@@ -1,6 +1,7 @@
 package com.example.afcs.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -64,6 +65,7 @@ public class PassengerEntity implements Serializable {
 		this.totalAmt = totalAmt;
 		this.singleJourneyEntitiy = singleJourneyEntitiy;
 	}
+	
 
 
 
@@ -122,9 +124,9 @@ public class PassengerEntity implements Serializable {
 	public void setTotalAmt(Long totalAmt) {
 		this.totalAmt = totalAmt;
 	}
-
 	
-	  public SingleJourneyEntitiy getSingleJourneyEntitiy() { return
+
+	public SingleJourneyEntitiy getSingleJourneyEntitiy() { return
 	  singleJourneyEntitiy; }
 	  
 	  public void setSingleJourneyEntitiy(SingleJourneyEntitiy

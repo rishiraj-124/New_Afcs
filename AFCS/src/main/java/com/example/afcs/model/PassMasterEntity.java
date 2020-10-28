@@ -37,6 +37,8 @@ public class PassMasterEntity implements Serializable {
 	@Column(name ="passDescription")
 	private String passDesc;
 	
+	@Column(name ="passDetails")
+	private String passDetails;
 	
 	@Column(name ="passPeriod")
 	private String passPeriod;
@@ -119,6 +121,14 @@ public class PassMasterEntity implements Serializable {
 
 	public void setPassDesc(String passDesc) {
 		this.passDesc = passDesc;
+	}
+
+	public String getPassDetails() {
+		return passDetails;
+	}
+
+	public void setPassDetails(String passDetails) {
+		this.passDetails = passDetails;
 	}
 
 	public String getPassPeriod() {

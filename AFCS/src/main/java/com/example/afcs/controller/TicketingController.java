@@ -28,9 +28,12 @@ import com.example.afcs.bean.AfcsApiResponse;
 import com.example.afcs.bean.AgentLoginRequest;
 import com.example.afcs.bean.ChangePasswordRequest;
 import com.example.afcs.bean.CustomerRegistrationRequest;
+import com.example.afcs.bean.DriverCondLoginRequest;
+import com.example.afcs.bean.DriverCondMasterRequest;
 import com.example.afcs.bean.Dummy;
 import com.example.afcs.bean.ForgetPasswordRequest;
 import com.example.afcs.bean.IssueValueQRRequest;
+import com.example.afcs.bean.LogOutRequest;
 import com.example.afcs.bean.LoginRequest;
 import com.example.afcs.bean.MasterDataRequest;
 import com.example.afcs.bean.MobileVerificationRequest;
@@ -44,7 +47,9 @@ import com.example.afcs.bean.ScanQRTicketRequest;
 import com.example.afcs.bean.ShiftRepoSummRequest;
 import com.example.afcs.bean.SingleJourneyRequest;
 import com.example.afcs.bean.SubmitTicketRequest;
+import com.example.afcs.bean.TicketDataValidationRequest;
 import com.example.afcs.bean.TicketFareRequest;
+import com.example.afcs.bean.UploadScannedQRCodeRequest;
 import com.example.afcs.bean.ValidationBean;
 import com.example.afcs.main.ApplicationPropertyReader;
 import com.example.afcs.model.UserEntity;
@@ -1648,7 +1653,375 @@ public class TicketingController {
 	}
 	
 	
+	@PostMapping(path="/logOut",consumes="application/json",produces="application/json")
+	@ResponseBody
+	public AfcsApiResponse logOut(@RequestBody AfcsApiRequest afcsApiRequest, HttpServletRequest request) {
+
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		try {
+			log.info("AfcsApiRequest--->> " + afcsApiRequest.toString());
+			//String channelId = request.getHeader("channelId");
+			
+			Object payloadObj = afcsApiRequest.getPayloadObj();
+
+			LogOutRequest logOutRequest =  AFCSUtil.jsonStringToObject(payloadObj,
+					LogOutRequest.class);
+
+			
+			String errormsg="";
+			
+			
+			System.out.println();
+			//System.out.println(applicationPropertyReader.getEncodingList()+"----------------------"+applicationPropertyReader.getHostList());
+			Set<ConstraintViolation<ValidationBean>> validationError = KeyEncryptionUtils.validateBean(logOutRequest);
+
+			if (validationError != null && !validationError.isEmpty()) {
+
+				String errorMessage = getErrorMessage(validationError);
+				afcsApiResponse.setPayloadObj(logOutRequest);
+				afcsApiResponse.setResMessage(errorMessage);
+				afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
+				log.info(this.getClass().getSimpleName(),
+						AFCSConstants.LOGGING_RESPONSE + AFCSConstants.LOGGING_METHOD_NAME
+								+ Thread.currentThread().getStackTrace()[1].getMethodName()
+								+ AFCSConstants.LOGGING_REQUEST_FROM + request.getRemoteAddr()
+								+ AFCSConstants.LOGGING_USER_ADDRESS
+								+ request.getHeader(AFCSConstants.USER_IP_ADDRESS)
+								+ AFCSConstants.LOGGING_ERROR + errorMessage);
+
+				return afcsApiResponse;
+
+			} else {
+				String token = afcsApiRequest.getTokenId();
+
+				if (logOutRequest != null) {
+					UserEntity userEntity = ticketingService.getUserByToken(token);
+						
+					if(userEntity ==null || !userEntity.getToken().equalsIgnoreCase(token)){
+						errormsg += "Invalid Auth Key";
+						afcsApiResponse.setResMessage(errormsg);
+						afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
+						return afcsApiResponse;
+					}
+					else {
+						afcsApiResponse = loginService.logOut(logOutRequest);
+					}
+				}				
+
+			}
+			log.info("AfcsApiResponse--->> " + logOutRequest.toString());
+			
+		} catch (Exception e) {
+
+			String[] exceptionData = ExceptionUtils.getExceptionGeneratedClassDetails(e.getStackTrace(),
+					AFCSConstants.PACKAGE_FOR_EXCEPTION);
+
+			log.info(this.getClass().getSimpleName(), AFCSConstants.LOGGING_METHOD_NAME
+					+ Thread.currentThread().getStackTrace()[1].getMethodName()
+					+ AFCSConstants.LOGGING_ERROR_MESSAGE + e + AFCSConstants.LOGGGING_CLASS_NAME
+					+ exceptionData[0] + AFCSConstants.LOGGING_FILE_NAME + exceptionData[1]
+					+ AFCSConstants.LOGGING_METHOD_NAME + exceptionData[2]
+					+ AFCSConstants.LOGGING_LINE_NUMBER + exceptionData[3]);
+		}
+		return afcsApiResponse;
+
+	}
 	
+	@PostMapping(path="/driverCondLogin",consumes="application/json",produces="application/json")
+	@ResponseBody
+	public AfcsApiResponse driverCondLogin(@RequestBody AfcsApiRequest afcsApiRequest, HttpServletRequest request) {
+
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		try {
+			log.info("AfcsApiRequest--->> " + afcsApiRequest.toString());
+			//String channelId = request.getHeader("channelId");
+			
+			Object payloadObj = afcsApiRequest.getPayloadObj();
+
+			DriverCondLoginRequest driverCondLoginRequest =  AFCSUtil.jsonStringToObject(payloadObj,
+					DriverCondLoginRequest.class);
+
+			
+			String errormsg="";
+			
+			
+			System.out.println();
+			//System.out.println(applicationPropertyReader.getEncodingList()+"----------------------"+applicationPropertyReader.getHostList());
+			Set<ConstraintViolation<ValidationBean>> validationError = KeyEncryptionUtils.validateBean(driverCondLoginRequest);
+
+			if (validationError != null && !validationError.isEmpty()) {
+
+				String errorMessage = getErrorMessage(validationError);
+				afcsApiResponse.setPayloadObj(driverCondLoginRequest);
+				afcsApiResponse.setResMessage(errorMessage);
+				afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
+				log.info(this.getClass().getSimpleName(),
+						AFCSConstants.LOGGING_RESPONSE + AFCSConstants.LOGGING_METHOD_NAME
+								+ Thread.currentThread().getStackTrace()[1].getMethodName()
+								+ AFCSConstants.LOGGING_REQUEST_FROM + request.getRemoteAddr()
+								+ AFCSConstants.LOGGING_USER_ADDRESS
+								+ request.getHeader(AFCSConstants.USER_IP_ADDRESS)
+								+ AFCSConstants.LOGGING_ERROR + errorMessage);
+
+				return afcsApiResponse;
+
+			} else {
+				String token = afcsApiRequest.getTokenId();
+
+				if (driverCondLoginRequest != null) {
+				/*	UserEntity userEntity = ticketingService.getUserByToken(token);
+						
+					if(userEntity ==null || !userEntity.getToken().equalsIgnoreCase(token)){
+						errormsg += "Invalid Auth Key";
+						afcsApiResponse.setResMessage(errormsg);
+						afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
+						return afcsApiResponse;
+					}*/
+					
+						afcsApiResponse = loginService.loginDriverCond(driverCondLoginRequest);
+					
+				}				
+
+			}
+			log.info("AfcsApiResponse--->> " + driverCondLoginRequest.toString());
+			
+		} catch (Exception e) {
+
+			String[] exceptionData = ExceptionUtils.getExceptionGeneratedClassDetails(e.getStackTrace(),
+					AFCSConstants.PACKAGE_FOR_EXCEPTION);
+
+			log.info(this.getClass().getSimpleName(), AFCSConstants.LOGGING_METHOD_NAME
+					+ Thread.currentThread().getStackTrace()[1].getMethodName()
+					+ AFCSConstants.LOGGING_ERROR_MESSAGE + e + AFCSConstants.LOGGGING_CLASS_NAME
+					+ exceptionData[0] + AFCSConstants.LOGGING_FILE_NAME + exceptionData[1]
+					+ AFCSConstants.LOGGING_METHOD_NAME + exceptionData[2]
+					+ AFCSConstants.LOGGING_LINE_NUMBER + exceptionData[3]);
+		}
+		return afcsApiResponse;
+
+	}
+	
+	@PostMapping(path="/driverCondMaster",consumes="application/json",produces="application/json")
+	@ResponseBody
+	public AfcsApiResponse driverCondMaster(@RequestBody AfcsApiRequest afcsApiRequest, HttpServletRequest request) {
+
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		try {
+			log.info("AfcsApiRequest--->> " + afcsApiRequest.toString());
+			//String channelId = request.getHeader("channelId");
+			
+			Object payloadObj = afcsApiRequest.getPayloadObj();
+
+			DriverCondMasterRequest driverCondMasterRequest =  AFCSUtil.jsonStringToObject(payloadObj,
+					DriverCondMasterRequest.class);
+
+			
+			String errormsg="";
+			
+			
+			System.out.println();
+			//System.out.println(applicationPropertyReader.getEncodingList()+"----------------------"+applicationPropertyReader.getHostList());
+			Set<ConstraintViolation<ValidationBean>> validationError = KeyEncryptionUtils.validateBean(driverCondMasterRequest);
+
+			if (validationError != null && !validationError.isEmpty()) {
+
+				String errorMessage = getErrorMessage(validationError);
+				afcsApiResponse.setPayloadObj(driverCondMasterRequest);
+				afcsApiResponse.setResMessage(errorMessage);
+				afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
+				log.info(this.getClass().getSimpleName(),
+						AFCSConstants.LOGGING_RESPONSE + AFCSConstants.LOGGING_METHOD_NAME
+								+ Thread.currentThread().getStackTrace()[1].getMethodName()
+								+ AFCSConstants.LOGGING_REQUEST_FROM + request.getRemoteAddr()
+								+ AFCSConstants.LOGGING_USER_ADDRESS
+								+ request.getHeader(AFCSConstants.USER_IP_ADDRESS)
+								+ AFCSConstants.LOGGING_ERROR + errorMessage);
+
+				return afcsApiResponse;
+
+			} else {
+				String token = afcsApiRequest.getTokenId();
+
+				if (driverCondMasterRequest != null) {
+				/*	UserEntity userEntity = ticketingService.getUserByToken(token);
+						
+					if(userEntity ==null || !userEntity.getToken().equalsIgnoreCase(token)){
+						errormsg += "Invalid Auth Key";
+						afcsApiResponse.setResMessage(errormsg);
+						afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
+						return afcsApiResponse;
+					}*/
+					
+						afcsApiResponse = ticketingService.getDriverConductorMasterData(driverCondMasterRequest);
+					
+				}				
+
+			}
+			log.info("AfcsApiResponse--->> " + driverCondMasterRequest.toString());
+			
+		} catch (Exception e) {
+
+			String[] exceptionData = ExceptionUtils.getExceptionGeneratedClassDetails(e.getStackTrace(),
+					AFCSConstants.PACKAGE_FOR_EXCEPTION);
+
+			log.info(this.getClass().getSimpleName(), AFCSConstants.LOGGING_METHOD_NAME
+					+ Thread.currentThread().getStackTrace()[1].getMethodName()
+					+ AFCSConstants.LOGGING_ERROR_MESSAGE + e + AFCSConstants.LOGGGING_CLASS_NAME
+					+ exceptionData[0] + AFCSConstants.LOGGING_FILE_NAME + exceptionData[1]
+					+ AFCSConstants.LOGGING_METHOD_NAME + exceptionData[2]
+					+ AFCSConstants.LOGGING_LINE_NUMBER + exceptionData[3]);
+		}
+		return afcsApiResponse;
+
+	}
+	
+	@PostMapping(path="/ticketDataValidation",consumes="application/json",produces="application/json")
+	@ResponseBody
+	public AfcsApiResponse ticketDataValidation(@RequestBody AfcsApiRequest afcsApiRequest, HttpServletRequest request) {
+
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		try {
+			log.info("AfcsApiRequest--->> " + afcsApiRequest.toString());
+			//String channelId = request.getHeader("channelId");
+			
+			Object payloadObj = afcsApiRequest.getPayloadObj();
+
+			TicketDataValidationRequest ticketDataValidationRequest =  AFCSUtil.jsonStringToObject(payloadObj,
+					TicketDataValidationRequest.class);
+
+			
+			String errormsg="";
+			
+			
+			System.out.println();
+			//System.out.println(applicationPropertyReader.getEncodingList()+"----------------------"+applicationPropertyReader.getHostList());
+			Set<ConstraintViolation<ValidationBean>> validationError = KeyEncryptionUtils.validateBean(ticketDataValidationRequest);
+
+			if (validationError != null && !validationError.isEmpty()) {
+
+				String errorMessage = getErrorMessage(validationError);
+				afcsApiResponse.setPayloadObj(ticketDataValidationRequest);
+				afcsApiResponse.setResMessage(errorMessage);
+				afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
+				log.info(this.getClass().getSimpleName(),
+						AFCSConstants.LOGGING_RESPONSE + AFCSConstants.LOGGING_METHOD_NAME
+								+ Thread.currentThread().getStackTrace()[1].getMethodName()
+								+ AFCSConstants.LOGGING_REQUEST_FROM + request.getRemoteAddr()
+								+ AFCSConstants.LOGGING_USER_ADDRESS
+								+ request.getHeader(AFCSConstants.USER_IP_ADDRESS)
+								+ AFCSConstants.LOGGING_ERROR + errorMessage);
+
+				return afcsApiResponse;
+
+			} else {
+				String token = afcsApiRequest.getTokenId();
+
+				if (ticketDataValidationRequest != null) {
+				/*	UserEntity userEntity = ticketingService.getUserByToken(token);
+						
+					if(userEntity ==null || !userEntity.getToken().equalsIgnoreCase(token)){
+						errormsg += "Invalid Auth Key";
+						afcsApiResponse.setResMessage(errormsg);
+						afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
+						return afcsApiResponse;
+					}*/
+					
+						afcsApiResponse = ticketingService.getValidatedTicketData(ticketDataValidationRequest);
+					
+				}				
+
+			}
+			log.info("AfcsApiResponse--->> " + ticketDataValidationRequest.toString());
+			
+		} catch (Exception e) {
+
+			String[] exceptionData = ExceptionUtils.getExceptionGeneratedClassDetails(e.getStackTrace(),
+					AFCSConstants.PACKAGE_FOR_EXCEPTION);
+
+			log.info(this.getClass().getSimpleName(), AFCSConstants.LOGGING_METHOD_NAME
+					+ Thread.currentThread().getStackTrace()[1].getMethodName()
+					+ AFCSConstants.LOGGING_ERROR_MESSAGE + e + AFCSConstants.LOGGGING_CLASS_NAME
+					+ exceptionData[0] + AFCSConstants.LOGGING_FILE_NAME + exceptionData[1]
+					+ AFCSConstants.LOGGING_METHOD_NAME + exceptionData[2]
+					+ AFCSConstants.LOGGING_LINE_NUMBER + exceptionData[3]);
+		}
+		return afcsApiResponse;
+
+	}
+	
+	@PostMapping(path="/uploadScannedQRCode",consumes="application/json",produces="application/json")
+	@ResponseBody
+	public AfcsApiResponse uploadScannedQRCode(@RequestBody AfcsApiRequest afcsApiRequest, HttpServletRequest request) {
+
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		try {
+			log.info("AfcsApiRequest--->> " + afcsApiRequest.toString());
+			//String channelId = request.getHeader("channelId");
+			
+			Object payloadObj = afcsApiRequest.getPayloadObj();
+
+			UploadScannedQRCodeRequest uploadScannedQRCodeRequest =  AFCSUtil.jsonStringToObject(payloadObj,
+					UploadScannedQRCodeRequest.class);
+
+			
+			String errormsg="";
+			
+			
+			System.out.println();
+			//System.out.println(applicationPropertyReader.getEncodingList()+"----------------------"+applicationPropertyReader.getHostList());
+			Set<ConstraintViolation<ValidationBean>> validationError = KeyEncryptionUtils.validateBean(uploadScannedQRCodeRequest);
+
+			if (validationError != null && !validationError.isEmpty()) {
+
+				String errorMessage = getErrorMessage(validationError);
+				afcsApiResponse.setPayloadObj(uploadScannedQRCodeRequest);
+				afcsApiResponse.setResMessage(errorMessage);
+				afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
+				log.info(this.getClass().getSimpleName(),
+						AFCSConstants.LOGGING_RESPONSE + AFCSConstants.LOGGING_METHOD_NAME
+								+ Thread.currentThread().getStackTrace()[1].getMethodName()
+								+ AFCSConstants.LOGGING_REQUEST_FROM + request.getRemoteAddr()
+								+ AFCSConstants.LOGGING_USER_ADDRESS
+								+ request.getHeader(AFCSConstants.USER_IP_ADDRESS)
+								+ AFCSConstants.LOGGING_ERROR + errorMessage);
+
+				return afcsApiResponse;
+
+			} else {
+				String token = afcsApiRequest.getTokenId();
+
+				if (uploadScannedQRCodeRequest != null) {
+				/*	UserEntity userEntity = ticketingService.getUserByToken(token);
+						
+					if(userEntity ==null || !userEntity.getToken().equalsIgnoreCase(token)){
+						errormsg += "Invalid Auth Key";
+						afcsApiResponse.setResMessage(errormsg);
+						afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
+						return afcsApiResponse;
+					}*/
+					
+						afcsApiResponse = ticketingService.uploadQRCode(uploadScannedQRCodeRequest);
+					
+				}				
+
+			}
+			log.info("AfcsApiResponse--->> " + uploadScannedQRCodeRequest.toString());
+			
+		} catch (Exception e) {
+
+			String[] exceptionData = ExceptionUtils.getExceptionGeneratedClassDetails(e.getStackTrace(),
+					AFCSConstants.PACKAGE_FOR_EXCEPTION);
+
+			log.info(this.getClass().getSimpleName(), AFCSConstants.LOGGING_METHOD_NAME
+					+ Thread.currentThread().getStackTrace()[1].getMethodName()
+					+ AFCSConstants.LOGGING_ERROR_MESSAGE + e + AFCSConstants.LOGGGING_CLASS_NAME
+					+ exceptionData[0] + AFCSConstants.LOGGING_FILE_NAME + exceptionData[1]
+					+ AFCSConstants.LOGGING_METHOD_NAME + exceptionData[2]
+					+ AFCSConstants.LOGGING_LINE_NUMBER + exceptionData[3]);
+		}
+		return afcsApiResponse;
+
+	}
 	
 	
 	private String getErrorMessage(Set<ConstraintViolation<ValidationBean>> validationError) 

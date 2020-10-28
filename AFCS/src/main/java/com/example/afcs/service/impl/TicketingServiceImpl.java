@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.afcs.bean.AfcsApiResponse;
 import com.example.afcs.bean.CustomerRegistrationRequest;
+import com.example.afcs.bean.DriverCondMasterRequest;
 import com.example.afcs.bean.IssueValueQRRequest;
 import com.example.afcs.bean.MasterDataRequest;
 import com.example.afcs.bean.MobileVerificationRequest;
@@ -38,18 +39,27 @@ import com.example.afcs.bean.ScanQRTicketRequest;
 import com.example.afcs.bean.ShiftRepoSummRequest;
 import com.example.afcs.bean.SingleJourneyRequest;
 import com.example.afcs.bean.SubmitTicketRequest;
+import com.example.afcs.bean.TicketDataValidationRequest;
 import com.example.afcs.bean.TicketFareRequest;
 import com.example.afcs.bean.TransactionDetail;
+import com.example.afcs.bean.UploadScannedQRCodeRequest;
 import com.example.afcs.dao.JourneyTicketDAO;
 import com.example.afcs.dao.MasterDataDAO;
 import com.example.afcs.dao.UserEntityDAO;
 import com.example.afcs.dao.impl.UserEntityDAOImpl;
 import com.example.afcs.model.AfcsGateDeviceMaster;
+import com.example.afcs.model.BusInfoEntity;
+import com.example.afcs.model.BusPassEntity;
+import com.example.afcs.model.DiscountEntity;
+import com.example.afcs.model.FareEntity;
 import com.example.afcs.model.MasterDataEntity;
 import com.example.afcs.model.PassMasterEntity;
 import com.example.afcs.model.PassengerEntity;
 import com.example.afcs.model.QRPassEntity;
+import com.example.afcs.model.RouteEntity;
 import com.example.afcs.model.SingleJourneyEntitiy;
+import com.example.afcs.model.StopEntity;
+import com.example.afcs.model.TicketData;
 import com.example.afcs.model.UserEntity;
 import com.example.afcs.model.ValueQRTicketEntity;
 import com.example.afcs.service.TicketingService;
@@ -317,12 +327,13 @@ public class TicketingServiceImpl implements TicketingService{
 					issueValueQRRequest.setPaymentStatus(valueQRTicketEntity.getPaymentStatus());
 					issueValueQRRequest.setTicketStatus("Success");
 					issueValueQRRequest.setTicketValidity("");
-					issueValueQRRequest.setIssueDate(valueQRTicketEntity.getIssueDate());
+					issueValueQRRequest.setIssueDate(valueQRTicketEntity.getIssueDate().toString());
 					issueValueQRRequest.setIssueTime("");
+					issueValueQRRequest.setQrTicketHash(valueQRTicketEntity.getQrTicketHash());
 					issueValueQRResponseList.add(issueValueQRRequest);
 					afcsApiResponse.setPayloadObj(issueValueQRResponseList);
 					afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
-					afcsApiResponse.setResMessage("Mobile Verification Succesfull");
+					afcsApiResponse.setResMessage("Value QR Code generated");
 					
 				}
 				
@@ -699,6 +710,7 @@ public class TicketingServiceImpl implements TicketingService{
 			passMasterEntity.setDt_Issue(sdate);
 			passMasterEntity.setValidFrom(passFareRequest.getSrcStationId());
 			passMasterEntity.setValidTo(passFareRequest.getDestStationId());
+			passMasterEntity.setPassDetails(passMasterEntity.getTripAllowed()+" Trips Pass");
 			passMasterEntity.setPassType(passFareRequest.getPassType());
 			passMasterEntity.setPassName(passFareRequest.getPassType());
 		}
@@ -777,6 +789,258 @@ public class TicketingServiceImpl implements TicketingService{
 		
 		return afcsApiResponse;
 	}
+
+	
+	public AfcsApiResponse getDriverConductorMasterData(DriverCondMasterRequest driverCondMasterRequest) {
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		List<BusInfoEntity> busInfo = new ArrayList<BusInfoEntity>();
+		
+		
+		
+		BusInfoEntity busInfoEntity = new BusInfoEntity();
+		busInfoEntity.setVehicleNo("DL1R3305");
+		busInfoEntity.setBusType("AC Bus");
+		busInfoEntity.setManufacturer("TATA");
+		busInfoEntity.setRoutes(getRoute());
+		busInfoEntity.setFareRules(getFareRule());
+		busInfoEntity.setDiscounts(getDiscount());
+		busInfoEntity.setPassAllowed(getPassAllowed());
+		
+		busInfo.add(busInfoEntity);
+	
+		
+		afcsApiResponse.setPayloadObj(busInfo);
+		afcsApiResponse.setResMessage("Driver Conductor Master Data");
+		afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
+				
+		
+		return afcsApiResponse;
+	}
+	
+
+	@Override
+	public AfcsApiResponse getValidatedTicketData(TicketDataValidationRequest ticketDataValidationRequest) {
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		List<TicketData> tickets = new ArrayList<TicketData>();
+		
+		TicketData ticketData=null;
+		for(int i=1 ; i<=Integer.parseInt(ticketDataValidationRequest.getRouteId());i++) {
+			ticketData=new TicketData();
+			ticketData.setTicketSrNum(AFCSUtil.getRandomNum(15));
+			ticketData.setQrCode(AFCSUtil.getAlphaNumericString(30));
+			ticketData.setQrType("tkt");
+			if(i<=3) {
+			ticketData.setTicketType("SJT");
+			ticketData.setSrcStn("Munirka");
+			ticketData.setDestStn("Dhaula Kuan");
+			ticketData.setSrcStnCode("15");
+			ticketData.setDestStnCode("40");
+			ticketData.setTktAmnt("50");
+			ticketData.setQrStatus("Valid");
+			
+			LocalDate date = LocalDate.now();
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+			String sdate = date.format(formatter);
+			
+			
+			
+			Calendar cal = Calendar.getInstance();
+			String sTime = cal.get(Calendar.HOUR_OF_DAY) + ":" + cal.get(Calendar.MINUTE) + ":"
+					+ cal.get(Calendar.SECOND);
+			
+			ticketData.setQrValidUpto(sdate+" : "+ sTime);
+			
+			tickets.add(ticketData);
+			}else {
+				ticketData.setTicketType("RJT");
+				ticketData.setSrcStn("Dwarka");
+				ticketData.setDestStn("Dhaula Kuan");
+				ticketData.setSrcStnCode("30");
+				ticketData.setDestStnCode("74");
+				ticketData.setTktAmnt("50");
+				ticketData.setQrStatus("Invalid");
+				
+				LocalDate date = LocalDate.now();
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+				String sdate = date.format(formatter);
+				
+				
+				
+				Calendar cal = Calendar.getInstance();
+				String sTime = cal.get(Calendar.HOUR_OF_DAY) + ":" + cal.get(Calendar.MINUTE) + ":"
+						+ cal.get(Calendar.SECOND);
+				
+				ticketData.setQrValidUpto(sdate+" : "+ sTime);
+				tickets.add(ticketData);
+			}
+			
+		}
+		
+		
+		afcsApiResponse.setPayloadObj(tickets);
+		afcsApiResponse.setResMessage("Tickets Status Data");
+		afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
+		
+		return afcsApiResponse;
+	}
+	
+
+	@Override
+	public AfcsApiResponse uploadQRCode(UploadScannedQRCodeRequest uploadScannedQRCodeRequest) {
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		List<String> tickets = new ArrayList<String>();
+		
+		afcsApiResponse.setPayloadObj(tickets);
+		afcsApiResponse.setResMessage("Scanned ticket updated on server successfully");
+		afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
+		
+		return afcsApiResponse;
+	}
+	
+	public List<BusPassEntity> getPassAllowed(){
+		List<BusPassEntity> passAllowed = new ArrayList<BusPassEntity>();
+		BusPassEntity busPassEntity = new BusPassEntity();
+		BusPassEntity busPassEntity2 = new BusPassEntity();
+		
+		busPassEntity.setPassId("1");
+		busPassEntity.setPassType("DP50");
+		busPassEntity.setDiscountInPer("100");
+		
+		busPassEntity.setPassId("2");
+		busPassEntity.setPassType("MP1000");
+		busPassEntity.setDiscountInPer("50");
+		
+		passAllowed.add(busPassEntity);
+		passAllowed.add(busPassEntity2);
+		
+		return passAllowed;
+		
+		
+	}
+	
+	public List<DiscountEntity> getDiscount(){
+		List<DiscountEntity> discounts = new ArrayList<DiscountEntity>();
+		DiscountEntity discountEntity = new DiscountEntity();
+		DiscountEntity discountEntity2 = new DiscountEntity();
+		discountEntity.setDiscountId("1");
+		discountEntity.setDiscountType("Child");
+		discountEntity.setDiscountInPer("50");
+		
+		discountEntity2.setDiscountId("2");
+		discountEntity2.setDiscountType("Senior Citizen");
+		discountEntity2.setDiscountInPer("100");
+		discounts.add(discountEntity);
+		discounts.add(discountEntity2);
+		
+		return discounts;
+		
+	}
+	
+	public List<FareEntity> getFareRule(){
+		List<FareEntity> fareRules = new ArrayList<FareEntity>();
+		FareEntity fareEntity = new FareEntity();
+		FareEntity fareEntity2 = new FareEntity();
+		FareEntity fareEntity3 = new FareEntity();
+		
+		fareEntity.setFareType("By Distance");
+		fareEntity.setMinDistance("0");
+		fareEntity.setMaxDistance("4");
+		fareEntity.setFareAmnt("40");
+		fareEntity.setBusServiceType("Non AC");
+		
+		fareEntity2.setFareType("By Distance");
+		fareEntity2.setMinDistance("5");
+		fareEntity2.setMaxDistance("8");
+		fareEntity2.setFareAmnt("10");
+		fareEntity2.setBusServiceType("Non AC");
+		
+		fareEntity3.setFareType("By Distance");
+		fareEntity3.setMinDistance("9");
+		fareEntity3.setMaxDistance("12");
+		fareEntity3.setFareAmnt("15");
+		fareEntity3.setBusServiceType("AC");
+		
+		fareRules.add(fareEntity);
+		fareRules.add(fareEntity2);
+		fareRules.add(fareEntity3);
+		
+		return fareRules;
+		
+	}
+	
+	public List<StopEntity> getStops1(){
+		List<StopEntity> stops = new ArrayList<StopEntity>();
+		StopEntity stopEntity1 = new StopEntity();
+		stopEntity1.setStopId("23");
+		stopEntity1.setStopName("Sector 43/44 Bus Stop");
+		stopEntity1.setDistanceFromSrc("23Km");
+		stopEntity1.setStopLat("30.717058");
+		stopEntity1.setStopLong("76.743790");
+		
+		
+		StopEntity stopEntity2 = new StopEntity();
+		stopEntity2.setStopId("54");
+		stopEntity2.setStopName("Jhilmil Garden");
+		stopEntity2.setDistanceFromSrc("2 Km");
+		stopEntity2.setStopLat("16.717058");
+		stopEntity2.setStopLong("49.743790");
+		
+		stops.add(stopEntity1);
+		stops.add(stopEntity2);
+		
+		return stops;
+	}
+	
+	public List<StopEntity> getStops2(){
+		List<StopEntity> stops = new ArrayList<StopEntity>();
+		StopEntity stopEntity1 = new StopEntity();
+		stopEntity1.setStopId("84");
+		stopEntity1.setStopName("Sector 37 Bus Stop");
+		stopEntity1.setDistanceFromSrc("23Km");
+		stopEntity1.setStopLat("30.717058");
+		stopEntity1.setStopLong("76.743790");
+		
+		
+		StopEntity stopEntity2 = new StopEntity();
+		stopEntity2.setStopId("");
+		stopEntity2.setStopName("Sector18 Bus Stop");
+		stopEntity2.setDistanceFromSrc("2 Km");
+		stopEntity2.setStopLat("16.717058");
+		stopEntity2.setStopLong("49.743790");
+		
+		stops.add(stopEntity1);
+		stops.add(stopEntity2);
+		
+		return stops;
+	}
+	
+	public List<RouteEntity> getRoute(){
+		
+		List<RouteEntity> routes = new ArrayList<RouteEntity>();
+		List<RouteEntity> routes2 = new ArrayList<RouteEntity>();
+		
+		RouteEntity routeEntity1 = new RouteEntity();
+		routeEntity1.setRouteNo("24B");
+		routeEntity1.setSrcStation("ISBT-43");
+		routeEntity1.setDestStation("ISBT-17");
+		routeEntity1.setStops(getStops1());
+		
+
+		RouteEntity routeEntity2 = new RouteEntity();
+		routeEntity2.setRouteNo("25A");
+		routeEntity2.setSrcStation("KashmeeriGate-15");
+		routeEntity2.setDestStation("KarolBagh-4");
+		routeEntity2.setStops(getStops2());
+		routes.add(routeEntity2);
+		
+		routes.add(routeEntity1);
+		routes2.add(routeEntity2);
+		
+		return routes; 
+	}
+
+
+
 
 	
 

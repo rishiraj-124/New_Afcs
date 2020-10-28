@@ -20,10 +20,13 @@ import com.example.afcs.bean.AfcsApiRequest;
 import com.example.afcs.bean.AfcsApiResponse;
 import com.example.afcs.bean.AgentLoginRequest;
 import com.example.afcs.bean.ChangePasswordRequest;
+import com.example.afcs.bean.DriverCondLoginRequest;
+import com.example.afcs.bean.LogOutRequest;
 import com.example.afcs.bean.LoginRequest;
 import com.example.afcs.bean.MobileVerificationRequest;
 import com.example.afcs.bean.SingleJourneyRequest;
 import com.example.afcs.dao.UserEntityDAO;
+import com.example.afcs.model.DriverConductorEntity;
 import com.example.afcs.model.UserEntity;
 
 import com.example.afcs.service.LoginService;
@@ -56,7 +59,7 @@ public class LoginServiceImpl implements LoginService {
 		String userName = loginRequest.getUserId();
 		String userPassword = loginRequest.getPwd();
 		String mobile = loginRequest.getMobile();
-		List<LoginRequest> loginResponseList = new ArrayList<LoginRequest>();
+		List<UserEntity> loginResponseList = new ArrayList<UserEntity>();
 		
 		if(userName!=null) {
 		userEntity = getUserProfile(userName); // User name must be unique in our system
@@ -92,14 +95,17 @@ public class LoginServiceImpl implements LoginService {
 						loginRequest.setToken(token);
 						userEntity.setToken(token);
 						userEntity = updateUser(userEntity);
-						loginRequest.setStatus("Mobile Verified");
+						/*loginRequest.setStatus("Mobile Verified");
 						loginRequest.setPwd(null);
 						loginRequest.setId(String.valueOf(userEntity.getId()));
 						loginRequest.setFirstName(userEntity.getFirstName());
 						loginRequest.setLastName(userEntity.getLastName());
 						loginRequest.setEmailId(userEntity.getEmailId());
 						loginRequest.setMobile(userEntity.getMobile());
-						loginResponseList.add(loginRequest);
+						*/
+						
+						//loginResponseList.add(loginRequest);
+						loginResponseList.add(userEntity);
 						afcsApiResponse.setPayloadObj(loginResponseList);
 						afcsApiResponse.setResMessage("Login Succesfull");
 						afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
@@ -287,6 +293,49 @@ public class LoginServiceImpl implements LoginService {
 			
 		}
 		
+		return afcsApiResponse;
+	}
+
+	@Override
+	public AfcsApiResponse logOut(LogOutRequest logOutRequest) {
+		
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		UserEntity userEntity= getUserProfile(logOutRequest.getUserId());
+		userEntity.setToken(null);
+		userEntity = updateUser(userEntity);
+		afcsApiResponse.setResMessage("Successfully Logout");
+		afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
+		
+		
+		return afcsApiResponse;
+	}
+
+	
+	
+
+	@Override
+	public AfcsApiResponse loginDriverCond(DriverCondLoginRequest driverCondLoginRequest) {
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		List<DriverConductorEntity> driverConductorList = new ArrayList<DriverConductorEntity>(); 
+		DriverConductorEntity driverConductorEntity= new DriverConductorEntity();
+		driverConductorEntity.setUserId("41");
+		driverConductorEntity.setEmpCode("E0905");
+		driverConductorEntity.setFirstName("Subhash");
+		driverConductorEntity.setLastName("Singh");
+		driverConductorEntity.setRole("Driver");
+		driverConductorEntity.setDepotId("D013");
+		driverConductorEntity.setDepotName("SN Depot");
+		driverConductorEntity.setBusAssigned("DL1R0923");
+		driverConductorEntity.setEmaild("subhash@gmail.com");
+		driverConductorEntity.setMobile(driverCondLoginRequest.getMobile());
+		driverConductorEntity.setStatus("Permanent");
+		driverConductorEntity.setMpin(null);
+	         
+		driverConductorList.add(driverConductorEntity);
+		
+		afcsApiResponse.setPayloadObj(driverConductorList);
+		afcsApiResponse.setResMessage("Login Successful");
+		afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
 		return afcsApiResponse;
 	}
 
