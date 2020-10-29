@@ -28,6 +28,7 @@ import com.example.afcs.bean.DriverCondMasterRequest;
 import com.example.afcs.bean.IssueValueQRRequest;
 import com.example.afcs.bean.MasterDataRequest;
 import com.example.afcs.bean.MobileVerificationRequest;
+import com.example.afcs.bean.MultipleQRCodeUploadRequest;
 import com.example.afcs.bean.MyTicketRequest;
 import com.example.afcs.bean.MyTripsRequest;
 import com.example.afcs.bean.PassFareRequest;
@@ -42,7 +43,9 @@ import com.example.afcs.bean.SubmitTicketRequest;
 import com.example.afcs.bean.TicketDataValidationRequest;
 import com.example.afcs.bean.TicketFareRequest;
 import com.example.afcs.bean.TransactionDetail;
+import com.example.afcs.bean.TransactionTicket;
 import com.example.afcs.bean.UploadScannedQRCodeRequest;
+import com.example.afcs.bean.UploadTrxnDataRequest;
 import com.example.afcs.dao.JourneyTicketDAO;
 import com.example.afcs.dao.MasterDataDAO;
 import com.example.afcs.dao.UserEntityDAO;
@@ -897,6 +900,30 @@ public class TicketingServiceImpl implements TicketingService{
 		return afcsApiResponse;
 	}
 	
+	@Override
+	public AfcsApiResponse multipleQRCodeUpload(MultipleQRCodeUploadRequest multipleQRCodeUploadRequest) {
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		List<UploadScannedQRCodeRequest> uploadtickets = multipleQRCodeUploadRequest.getQrTickets();
+		
+		afcsApiResponse.setPayloadObj(null);
+		afcsApiResponse.setResMessage("Scanned tickets uploaded on server successfully");
+		afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
+		
+		return afcsApiResponse;
+	}
+	
+	@Override
+	public AfcsApiResponse uploadTicketTxnData(UploadTrxnDataRequest uploadTrxnDataRequest) {
+		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
+		List<TransactionTicket> uploadtickets = uploadTrxnDataRequest.getTxnTicketData();
+		
+		afcsApiResponse.setPayloadObj(null);
+		afcsApiResponse.setResMessage("Transactions uploaded on server successfully");
+		afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
+		
+		return afcsApiResponse;
+	}
+	
 	public List<BusPassEntity> getPassAllowed(){
 		List<BusPassEntity> passAllowed = new ArrayList<BusPassEntity>();
 		BusPassEntity busPassEntity = new BusPassEntity();
@@ -1038,6 +1065,10 @@ public class TicketingServiceImpl implements TicketingService{
 		
 		return routes; 
 	}
+
+	
+
+	
 
 
 

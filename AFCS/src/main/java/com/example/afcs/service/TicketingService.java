@@ -5,7 +5,7 @@ import com.example.afcs.bean.CustomerRegistrationRequest;
 import com.example.afcs.bean.DriverCondMasterRequest;
 import com.example.afcs.bean.IssueValueQRRequest;
 import com.example.afcs.bean.MasterDataRequest;
-import com.example.afcs.bean.MobileVerificationRequest;
+import com.example.afcs.bean.MultipleQRCodeUploadRequest;
 import com.example.afcs.bean.MyTicketRequest;
 import com.example.afcs.bean.MyTripsRequest;
 import com.example.afcs.bean.PassFareRequest;
@@ -19,6 +19,7 @@ import com.example.afcs.bean.SubmitTicketRequest;
 import com.example.afcs.bean.TicketDataValidationRequest;
 import com.example.afcs.bean.TicketFareRequest;
 import com.example.afcs.bean.UploadScannedQRCodeRequest;
+import com.example.afcs.bean.UploadTrxnDataRequest;
 import com.example.afcs.model.UserEntity;
 
 public interface TicketingService {
@@ -60,5 +61,10 @@ public interface TicketingService {
 	public AfcsApiResponse getValidatedTicketData(TicketDataValidationRequest ticketDataValidationRequest);
 	
 	public AfcsApiResponse uploadQRCode(UploadScannedQRCodeRequest uploadScannedQRCodeRequest);
+	
+	public AfcsApiResponse multipleQRCodeUpload(MultipleQRCodeUploadRequest multipleQRCodeUploadRequest);
+	
+	public AfcsApiResponse uploadTicketTxnData(UploadTrxnDataRequest uploadTrxnDataRequest);
+	
 	
 }
