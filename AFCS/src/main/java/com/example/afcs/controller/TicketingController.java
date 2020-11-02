@@ -53,6 +53,7 @@ import com.example.afcs.bean.TicketFareRequest;
 import com.example.afcs.bean.UploadScannedQRCodeRequest;
 import com.example.afcs.bean.UploadTrxnDataRequest;
 import com.example.afcs.bean.ValidationBean;
+import com.example.afcs.dao.UserEntityDAO;
 import com.example.afcs.main.ApplicationPropertyReader;
 import com.example.afcs.model.UserEntity;
 import com.example.afcs.service.LoginService;
@@ -78,6 +79,9 @@ public class TicketingController {
 	
 	@Autowired
 	LoginService loginService;
+	
+	@Autowired
+	UserEntityDAO userEntityDAO;
 	
 	@Autowired 
 	TicketingService ticketingService;
@@ -211,6 +215,7 @@ public class TicketingController {
 	@PostMapping(path="/qrSJTicket",consumes="application/json",produces="application/json")
 	@ResponseBody
 	public AfcsApiResponse singleJourney(@RequestBody AfcsApiRequest afcsApiRequest , HttpServletRequest request) {
+		
 		
 		AfcsApiResponse afcsApiResponse = new AfcsApiResponse();
 		try {
@@ -702,17 +707,25 @@ public class TicketingController {
 				return afcsApiResponse;
 
 			} else {
-				String token=afcsApiRequest.getTokenId();
+				//String token=afcsApiRequest.getTokenId();
+				String token="";
 				if(forgetPasswordRequest!=null) {
 					String userId = forgetPasswordRequest.getUserId();
-					UserEntity userEntity= loginService.getUserProfile(userId);
-					if(!userEntity.getToken().equalsIgnoreCase(token)) {
+					String mobile = forgetPasswordRequest.getMobile();
+					UserEntity userEntity=null;
+					if(userId!=null) {
+						userEntity = loginService.getUserProfile(userId); // User name must be unique in our system
+					}else {
+						userEntity = userEntityDAO.findByMobile(mobile);
+						}
+
+					/*if(!userEntity.getToken().equalsIgnoreCase(token)) {
 						errormsg+="Invalid Auth Key";
 						afcsApiResponse.setPayloadObj(forgetPasswordRequest);
 						afcsApiResponse.setResMessage(errormsg);
 						afcsApiResponse.setResSatus(AFCSConstants.REQUEST_FAILED);
 						return afcsApiResponse;
-					}else {
+					}else {*/
 						//need to send OTP SMS on mobile for verification.
 						userEntity.setMobileOtp(AFCSUtil.getRandomNum(6));
 						userEntity.setMobileVerificationStatus(null);
@@ -731,9 +744,6 @@ public class TicketingController {
 						afcsApiResponse.setResSatus(AFCSConstants.REQUEST_PROCESSED_SUCCESSFULLY);
 						afcsApiResponse.setResMessage("OTP sent to your mobile no.");
 						
-					}
-					
-					
 				}
 				
 				/*if(errormsg.equals("")){

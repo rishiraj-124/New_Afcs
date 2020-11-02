@@ -17,6 +17,8 @@ public class ForgetPasswordRequest implements ValidationBean {
 	
 	private String newPassword;
 
+	private String mobile;
+	
 	public String getUserId() {
 		return userId;
 	}
@@ -56,12 +58,22 @@ public class ForgetPasswordRequest implements ValidationBean {
 	public void setNewPassword(String newPassword) {
 		this.newPassword = newPassword;
 	}
+	
+	public String getMobile() {
+		return mobile;
+	}
+
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
 
 	@Override
 	public String toString() {
 		return "ForgetPasswordRequest [userId=" + userId + ", imei=" + imei + ", ipAddress=" + ipAddress + ", otp="
-				+ otp + ", newPassword=" + newPassword + "]";
+				+ otp + ", newPassword=" + newPassword + ", mobile=" + mobile + "]";
 	}
+
+	
 	
 	
 

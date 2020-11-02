@@ -13,7 +13,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>AFCS</name>
 	<description>Automatic Fare Collection System</description>
- 	<packaging>war</packaging>
+ 	<!-- <packaging>war</packaging> -->
 	<properties>
 		<java.version>1.8</java.version>
 	</properties>
@@ -34,12 +34,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 			<!--  added by suraj -->
-		    <exclusions>
+		    <!-- <exclusions>
 			<exclusion>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-tomcat</artifactId>
 			</exclusion>
-			</exclusions> 
+			</exclusions> --> 
 		</dependency>
 		<!-- added by Suraj  -->
 		<dependency>
@@ -91,10 +91,15 @@
 			<groupId>org.springframework</groupId>  
 			<artifactId>spring-webmvc</artifactId>  
 		</dependency> -->
-		<dependency>
+		<!-- <dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 				<version>5.1.6</version> 
+		</dependency> -->
+		
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
 		 <dependency>
    			<groupId>com.fasterxml.jackson.core</groupId>
